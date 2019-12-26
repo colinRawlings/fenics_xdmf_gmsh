@@ -9,7 +9,9 @@ Coherence;
 //+
 Physical Surface("outer", 2) = {13, 15, 16, 14, 17};
 //+
-Physical Surface("symmetry", 1) = {18, 8};
+Physical Surface("symmetry", 1) = {18};
+//+
+Physical Surface("symmetry forced", 3) = {8};
 //+
 Physical Volume("inner", 2) = {2};
 //+

@@ -6,6 +6,7 @@
 
 import dolfin as fn
 import os
+import pkg_resources as rc
 
 import fenics_utils as fu
 
@@ -13,14 +14,14 @@ import fenics_utils as fu
 # Definitions
 ###########################################################
 
-MSH_DIR = os.path.join(os.path.dirname(__file__), "msh")
+MSH_DIR = rc.resource_filename("fenics_utils", "assets")
 
 ###########################################################
 # Main
 ###########################################################
 
 if __name__ == "__main__":
-    
+
     # import mesh
 
     msh_filepath = os.path.join(MSH_DIR, "simple_poisson_3d.msh")

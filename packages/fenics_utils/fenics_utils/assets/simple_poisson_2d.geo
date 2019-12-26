@@ -12,7 +12,9 @@ Physical Surface("outer", 1) = {3};
 //+
 Physical Surface("inner", 2) = {2};
 //+
-Physical Curve("symmetry", 1) = {7, 9, 3};
+Physical Curve("symmetry", 1) = {7, 3};
+//+
+Physical Curve("symmetry forced", 3) = {9};
 //+
 Physical Curve("outer", 2) = {2, 1, 8};
 //+
