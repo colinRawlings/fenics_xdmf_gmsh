@@ -1,0 +1,5 @@
+solution.pvd
+solution000000.vtu
+.vscode/
+*.pyc
+*.egg-info/
