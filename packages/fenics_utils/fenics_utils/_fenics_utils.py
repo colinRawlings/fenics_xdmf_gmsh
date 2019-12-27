@@ -87,8 +87,8 @@ def close_all_paraview() -> None:
 #############################################################################
 
 
-def convert_2d_gmsh_msh_to_fenics_msh(msh_filepath: str, do_plots=False) -> ty.Dict:
-    """[convert_2d_gmsh_msh_to_fenics_msh]
+def convert_2d_gmsh_msh_to_fenics_mesh(msh_filepath: str, do_plots=False) -> ty.Dict:
+    """[convert_2d_gmsh_msh_to_fenics_mesh]
     
     Arguments:
         msh_filepath {str} --
@@ -165,8 +165,8 @@ def convert_2d_gmsh_msh_to_fenics_msh(msh_filepath: str, do_plots=False) -> ty.D
 #############################################################################
 
 
-def convert_3d_gmsh_msh_to_fenics_msh(msh_filepath: str) -> ty.Dict:
-    """[convert_3d_gmsh_msh_to_fenics_msh]
+def convert_3d_gmsh_msh_to_fenics_mesh(msh_filepath: str) -> ty.Dict:
+    """[convert_3d_gmsh_msh_to_fenics_mesh]
     
     Arguments:
         msh_filepath {str} -- 
@@ -229,6 +229,55 @@ def convert_3d_gmsh_msh_to_fenics_msh(msh_filepath: str) -> ty.Dict:
 
     return dict(mesh=mesh, subdomain_mesh_func=mf_dom, boundary_mesh_func=mf_bnd)
 
+#############################################################################
+
+def convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath: str) -> ty.Dict:
+    """[convert_2d_gmsh_geo_to_fenics_mesh]
+    
+    Arguments:
+        geo_filepath {str} -- 
+    
+    Returns:
+        ty.Dict -- dict(mesh=mesh, subdomain_mesh_func=mf_dom, boundary_mesh_func=mf_bnd)
+    """
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        tmp_msh_filepath = os.path.join(temp_dir, "tmp_msh.msh")
+        result = sp.run(["gmsh", "-2", "-o", tmp_msh_filepath, geo_filepath], stdout=sp.PIPE, stderr=sp.PIPE)
+
+        msg = "gmsh failed to create msh\n"
+        msg += f"stdout:\n{result.stdout.decode()}\n"
+        msg += f"stderr:\n{result.stderr.decode()}"
+        assert result.returncode == 0, msg
+
+        mesh_data = convert_2d_gmsh_msh_to_fenics_mesh(tmp_msh_filepath)
+    
+    return mesh_data
+
+#############################################################################
+
+def convert_3d_gmsh_geo_to_fenics_mesh(geo_filepath: str) -> ty.Dict:
+    """[convert_3d_gmsh_geo_to_fenics_mesh]
+    
+    Arguments:
+        geo_filepath {str} -- 
+    
+    Returns:
+        ty.Dict -- dict(mesh=mesh, subdomain_mesh_func=mf_dom, boundary_mesh_func=mf_bnd)
+    """
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        tmp_msh_filepath = os.path.join(temp_dir, "tmp_msh.msh")
+        result = sp.run(["gmsh", "-3", "-o", tmp_msh_filepath, geo_filepath], stdout=sp.PIPE, stderr=sp.PIPE)
+
+        msg = "gmsh failed to create msh\n"
+        msg += f"stdout:\n{result.stdout.decode()}\n"
+        msg += f"stderr:\n{result.stderr.decode()}"
+        assert result.returncode == 0, msg
+
+        mesh_data = convert_3d_gmsh_msh_to_fenics_mesh(tmp_msh_filepath)
+    
+    return mesh_data
 
 #############################################################################
 

@@ -16,7 +16,7 @@ import fenics_utils as fu
 # Definitions
 ###########################################################
 
-MSH_DIR = rc.resource_filename("fenics_utils", "assets")
+GEO_DIR = rc.resource_filename("fenics_utils", "assets")
 
 ###########################################################
 # Fixures
@@ -27,9 +27,9 @@ MSH_DIR = rc.resource_filename("fenics_utils", "assets")
 # Test
 ###########################################################
 
-def test_2d_import_and_solve():
-    msh_filepath = os.path.join(MSH_DIR, "simple_poisson_2d.msh")
-    mesh_data = fu.convert_2d_gmsh_msh_to_fenics_msh(msh_filepath)
+def test_2d_geo_import_and_solve():
+    geo_filepath = os.path.join(GEO_DIR, "simple_poisson_2d.geo")
+    mesh_data = fu.convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath)
 
     # Solve a dummy problem
 
@@ -54,9 +54,9 @@ def test_2d_import_and_solve():
 
     assert round(0.0175472, 5) == round(u(0.8, 0.8), 5)
 
-def test_3d_import_and_solve():
-    msh_filepath = os.path.join(MSH_DIR, "simple_poisson_3d.msh")
-    mesh_data = fu.convert_3d_gmsh_msh_to_fenics_msh(msh_filepath)
+def test_3d_geo_import_and_solve():
+    geo_filepath = os.path.join(GEO_DIR, "simple_poisson_3d.geo")
+    mesh_data = fu.convert_3d_gmsh_geo_to_fenics_mesh(geo_filepath)
 
     # Solve a dummy problem
 
