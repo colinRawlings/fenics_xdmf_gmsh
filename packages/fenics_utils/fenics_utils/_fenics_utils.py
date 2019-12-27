@@ -95,7 +95,7 @@ def convert_2d_gmsh_msh_to_fenics_msh(msh_filepath: str, do_plots=False) -> ty.D
         do_plots {bool} 
     
     Returns:
-        ty.Dict -- dict(mesh=mesh, subdomain_mesh_func=mf_dom, boundary_mesh_function=mf_bnd)
+        ty.Dict -- dict(mesh=mesh, subdomain_mesh_func=mf_dom, boundary_mesh_func=mf_bnd)
     """
 
     msh = meshio.read(msh_filepath)
@@ -172,7 +172,7 @@ def convert_3d_gmsh_msh_to_fenics_msh(msh_filepath: str) -> ty.Dict:
         msh_filepath {str} -- 
     
     Returns:
-        ty.Dict -- dict(mesh=mesh, subdomain_mesh_func=mf_dom, boundary_mesh_function=mf_bnd)
+        ty.Dict -- dict(mesh=mesh, subdomain_mesh_func=mf_dom, boundary_mesh_func=mf_bnd)
     """
 
     msh = meshio.read(msh_filepath)
