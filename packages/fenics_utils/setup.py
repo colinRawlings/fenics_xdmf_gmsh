@@ -10,4 +10,5 @@ if __name__ == "__main__":
           ],
           package_data={"": [
               "assets/*.geo",
+              "assets/*.msh"
           ]})
