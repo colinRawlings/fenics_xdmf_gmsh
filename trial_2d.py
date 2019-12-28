@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 # Definitions
 ###########################################################
 
-MSH_DIR = rc.resource_filename("fenics_utils", "assets")
+GEO_DIR = rc.resource_filename("fenics_utils", "assets")
 
 ###########################################################
 # Main
@@ -26,8 +26,8 @@ if __name__ == "__main__":
 
     # import mesh
 
-    msh_filepath = os.path.join(MSH_DIR, "simple_poisson_2d.msh")
-    mesh_data = fu.convert_2d_gmsh_msh_to_fenics_msh(msh_filepath, do_plots=True)
+    msh_filepath = os.path.join(GEO_DIR, "simple_poisson_2d.geo")
+    mesh_data = fu.convert_2d_gmsh_geo_to_fenics_mesh(msh_filepath, do_plots=True)
 
     # Solve a dummy problem
 
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     u = fn.Function(V)
     u = fu.solve_weak_form(u, F, bcs)
 
-    # Plot solution(s)
+    # Plot solution
     plt.figure()
     c = fn.plot(u, title="Solution")
     plt.colorbar(c)

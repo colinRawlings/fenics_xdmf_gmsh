@@ -231,7 +231,7 @@ def convert_3d_gmsh_msh_to_fenics_mesh(msh_filepath: str) -> ty.Dict:
 
 #############################################################################
 
-def convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath: str) -> ty.Dict:
+def convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath: str, do_plots: bool = True) -> ty.Dict:
     """[convert_2d_gmsh_geo_to_fenics_mesh]
     
     Arguments:
@@ -250,7 +250,7 @@ def convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath: str) -> ty.Dict:
         msg += f"stderr:\n{result.stderr.decode()}"
         assert result.returncode == 0, msg
 
-        mesh_data = convert_2d_gmsh_msh_to_fenics_mesh(tmp_msh_filepath)
+        mesh_data = convert_2d_gmsh_msh_to_fenics_mesh(tmp_msh_filepath, do_plots=do_plots)
     
     return mesh_data
 

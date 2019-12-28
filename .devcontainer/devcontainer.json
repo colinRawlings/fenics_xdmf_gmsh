@@ -30,10 +30,11 @@
     // Add the IDs of extensions you want installed when the container is created in the array below.
     "extensions": [
         "ms-python.python",
-        "visualstudioexptteam.vscodeintellicode",
         "njpwerner.autodocstring",
         "anjali.clipboard-history",
         "gruntfuggly.ubertab",
-        "2gua.rainbow-brackets"
+        "2gua.rainbow-brackets",
+        "bertrand-thierry.vscode-gmsh",
+        "ms-pyright.pyright"
     ]
 }
