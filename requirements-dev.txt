@@ -1,0 +1,7 @@
+jupyter
+flake8
+yapf 
+jedi 
+rope 
+pytest
+six==1.13.0

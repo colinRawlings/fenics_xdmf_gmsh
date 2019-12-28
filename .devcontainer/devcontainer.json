@@ -26,14 +26,14 @@
     // your server accepts connections from all interfaces (0.0.0.0 or '*'), not just localhost.
     // "appPort": [],
     // Uncomment the next line to run commands after the container is created - for example installing git.
-    // "postCreateCommand": "apt-get update && apt-get install -y git",
+    "postCreateCommand": "pip install -e /workspaces/fenics_xdmf_gmsh/packages/fenics_utils",
     // Add the IDs of extensions you want installed when the container is created in the array below.
     "extensions": [
         "ms-python.python",
         "visualstudioexptteam.vscodeintellicode",
-        "coenraads.bracket-pair-colorizer-2",
         "njpwerner.autodocstring",
         "anjali.clipboard-history",
-        "gruntfuggly.ubertab"
+        "gruntfuggly.ubertab",
+        "2gua.rainbow-brackets"
     ]
 }

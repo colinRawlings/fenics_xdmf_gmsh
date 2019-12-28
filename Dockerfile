@@ -14,10 +14,7 @@ ENV PATH="/home/fenics/apps/gmsh-${vGMSH_VERSION}-Linux64-sdk/bin:${PATH}"
 RUN pip install meshio
 RUN pip install lxml
 RUN pip install --no-binary=h5py h5py
-RUN pip install jupyter
-RUN pip install flake8 yapf jedi rope pytest
-RUN pip install -U six
 
 RUN mkdir /home/fenics/pkgs
-COPY ./packages/fenics_utils /home/fenics/pkgs/fenics_utils
-RUN pip install /home/fenics/pkgs/fenics_utils 
+COPY ./requirements-dev.txt /home/fenics/pkgs/requirements-dev.txt
+RUN pip install -r /home/fenics/pkgs/requirements-dev.txt
