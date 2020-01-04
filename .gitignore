@@ -1,5 +1,7 @@
-solution.pvd
-solution000000.vtu
+*.pvd
+*.vtu
 .vscode/
 *.pyc
 *.egg-info/
+u.pvd
+.DS_Store

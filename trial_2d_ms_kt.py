@@ -28,7 +28,7 @@ if __name__ == "__main__":
     msh_filepath = os.path.join(GEO_DIR, "circle_square_center_pt.geo")
     mesh_data = fu.convert_2d_gmsh_geo_to_fenics_mesh(msh_filepath, do_plots=False)
 
-    def edge_pt(x, on_boundary):
+    def is_center_pt(x, on_boundary):
         condition = (abs(x[0]-0.0) < 10*fn.DOLFIN_EPS and abs(x[1]-0.0) < 10*fn.DOLFIN_EPS)
         return condition
 
@@ -45,7 +45,7 @@ if __name__ == "__main__":
     (v, ve, vl) = fn.TestFunctions(W)
 
     bcs = [
-        fn.DirichletBC(W.sub_space(1), fn.Constant(0), edge_pt, method='pointwise'),
+        fn.DirichletBC(W.sub_space(1), fn.Constant(0), is_center_pt, method='pointwise'),
     ]
 
     M0 = fn.Expression(("0", "1"), degree=2)
