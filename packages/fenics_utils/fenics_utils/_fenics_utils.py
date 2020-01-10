@@ -12,6 +12,7 @@ import subprocess as sp
 import typing as ty
 import tempfile
 
+import numpy as np
 import matplotlib.pyplot as plt
 
 import meshio
@@ -158,7 +159,6 @@ def convert_2d_gmsh_msh_to_fenics_mesh(msh_filepath: str, do_plots=False) -> ty.
         plt.figure()
         c = fn.plot(mesh, title="mesh")
 
-
     return dict(mesh=mesh, subdomain_mesh_func=mf_dom, boundary_mesh_func=mf_bnd)
 
 
@@ -229,7 +229,9 @@ def convert_3d_gmsh_msh_to_fenics_mesh(msh_filepath: str) -> ty.Dict:
 
     return dict(mesh=mesh, subdomain_mesh_func=mf_dom, boundary_mesh_func=mf_bnd)
 
+
 #############################################################################
+
 
 def convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath: str, do_plots: bool = True) -> ty.Dict:
     """[convert_2d_gmsh_geo_to_fenics_mesh]
@@ -243,7 +245,9 @@ def convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath: str, do_plots: bool = True)
 
     with tempfile.TemporaryDirectory() as temp_dir:
         tmp_msh_filepath = os.path.join(temp_dir, "tmp_msh.msh")
-        result = sp.run(["gmsh", "-2", "-o", tmp_msh_filepath, geo_filepath], stdout=sp.PIPE, stderr=sp.PIPE)
+        result = sp.run(["gmsh", "-2", "-o", tmp_msh_filepath, geo_filepath],
+                        stdout=sp.PIPE,
+                        stderr=sp.PIPE)
 
         msg = "gmsh failed to create msh\n"
         msg += f"stdout:\n{result.stdout.decode()}\n"
@@ -251,10 +255,12 @@ def convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath: str, do_plots: bool = True)
         assert result.returncode == 0, msg
 
         mesh_data = convert_2d_gmsh_msh_to_fenics_mesh(tmp_msh_filepath, do_plots=do_plots)
-    
+
     return mesh_data
 
+
 #############################################################################
+
 
 def convert_3d_gmsh_geo_to_fenics_mesh(geo_filepath: str) -> ty.Dict:
     """[convert_3d_gmsh_geo_to_fenics_mesh]
@@ -268,7 +274,9 @@ def convert_3d_gmsh_geo_to_fenics_mesh(geo_filepath: str) -> ty.Dict:
 
     with tempfile.TemporaryDirectory() as temp_dir:
         tmp_msh_filepath = os.path.join(temp_dir, "tmp_msh.msh")
-        result = sp.run(["gmsh", "-3", "-o", tmp_msh_filepath, geo_filepath], stdout=sp.PIPE, stderr=sp.PIPE)
+        result = sp.run(["gmsh", "-3", "-o", tmp_msh_filepath, geo_filepath],
+                        stdout=sp.PIPE,
+                        stderr=sp.PIPE)
 
         msg = "gmsh failed to create msh\n"
         msg += f"stdout:\n{result.stdout.decode()}\n"
@@ -276,9 +284,71 @@ def convert_3d_gmsh_geo_to_fenics_mesh(geo_filepath: str) -> ty.Dict:
         assert result.returncode == 0, msg
 
         mesh_data = convert_3d_gmsh_msh_to_fenics_mesh(tmp_msh_filepath)
-    
+
     return mesh_data
 
+
+#############################################################################
+
+
+def create_mesh_view(mesh: fn.Mesh,
+                     subdomain_mesh_func: fn.MeshFunction,
+                     domain_index: ty.Optional[int] = None) -> ty.Dict[str, ty.Any]:
+    """[summary]
+    
+    Arguments:
+        mesh {fn.Mesh} -- [description]
+        subdomain_mesh_func {fn.MeshFunction} -- [description]
+        domain_index {int} -- [description] If none return entire mesh as view
+    
+    Returns:
+        ty.Dict[str, ty.Any] -- [description]
+    """
+
+    if domain_index is None:
+        marker = fn.MeshFunction("size_t", mesh,
+                                 mesh.topology().dim(), 0)  # mark entirety of the full mesh
+        mesh_view = fn.MeshView.create(marker, 0)
+    else:
+        mesh_view = fn.MeshView.create(subdomain_mesh_func, domain_index)
+
+    # make expression for original mesh
+
+    V = fn.FunctionSpace(mesh, "DG", 0)
+    u_smf = fn.Function(V)
+
+    helper = np.asarray(subdomain_mesh_func.array(), dtype=np.int32)
+
+    dm = V.dofmap()
+    for cell in fn.cells(mesh):
+        helper[dm.cell_dofs(cell.index())] = subdomain_mesh_func[cell]
+
+    u_smf.vector()[:] = helper
+
+    # evaluate on mesh view
+
+    view_smf = fn.MeshFunction("size_t", mesh_view, mesh_view.topology().dim(), 0)
+    for c in fn.cells(mesh_view):
+
+        if mesh_view.topology().dim() == 2:
+            cell_midpoint = (c.midpoint().x(), c.midpoint().y())
+        elif mesh_view.topology().dim() == 3:
+            cell_midpoint = (c.midpoint().x(), c.midpoint().y(), c.midpoint.z())
+        else:
+            assert False, "Unexpected condition"
+
+        view_smf[c] = int(u_smf(*cell_midpoint))
+
+    return dict(mesh=mesh_view, subdomain_mesh_func=view_smf)
+
+#############################################################################
+
+def newton_solver_parameters():
+    return {"nonlinear_solver": "newton", "newton_solver": {"linear_solver": "gmres"}}
+
+
+#############################################################################
+# DEPRECATED!!!
 #############################################################################
 
 
@@ -377,3 +447,11 @@ def save_function(u, function_filepath=None, open_file=False):
         sp.Popen(['paraview', function_filepath])
 
     return function_filepath
+
+###########################################################
+# Classes
+###########################################################
+
+class IsBoundary(fn.SubDomain):
+    def inside(self, x, on_boundary):
+        return on_boundary
