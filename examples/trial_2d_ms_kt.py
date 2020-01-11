@@ -7,15 +7,16 @@
 import dolfin as fn
 import os
 
-import fenics_utils as fu
-
+import numpy as np
 import matplotlib.pyplot as plt
+
+import fenics_utils as fu
 
 ###########################################################
 # Definitions
 ###########################################################
 
-GEO_DIR = os.path.abspath("geo")
+GEO_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, "geo"))
 
 ###########################################################
 # Functions
@@ -66,7 +67,7 @@ L += fn.Constant(0) * vl * dL
 #
 
 w = fn.Function(W)
-fn.solve(a == L, w, bcs, solver_parameters={'linear_solver': 'lu'})
+fn.solve(a == L, w, bcs)
 
 #
 
@@ -77,3 +78,13 @@ plt.colorbar(c)
 plt.figure()
 c = fn.plot(w.sub(1), title="ue")
 plt.colorbar(c)
+
+yv = np.linspace(-1, 1)
+uv = [w.sub(0)(0, yvv) for yvv in yv]
+uev = [w.sub(1)(0, yvv) for yvv in yv]
+
+plt.figure()
+plt.plot(yv, uv)
+
+plt.figure()
+plt.plot(yv, uev)

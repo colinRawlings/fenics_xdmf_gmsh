@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 # Definitions
 ###########################################################
 
-GEO_DIR = os.path.abspath("geo")
+GEO_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, "geo"))
 
 fn.set_log_level(10)
 
@@ -24,8 +24,10 @@ fn.set_log_level(10)
 # Functions
 ###########################################################
 
+
 def is_center_pt(x, on_boundary):
-    condition = (abs(x[0] - 0.0) < 10 * fn.DOLFIN_EPS and abs(x[1] - 0.0) < 10 * fn.DOLFIN_EPS)  # type: ignore
+    condition = (abs(x[0] - 0.0) < 10 * fn.DOLFIN_EPS
+                 and abs(x[1] - 0.0) < 10 * fn.DOLFIN_EPS)  # type: ignore
     return condition
 
 
@@ -51,7 +53,10 @@ W = fn.MixedFunctionSpace(V, VE, VL)
 (v, ve, vl) = fn.TestFunctions(W)  # type: ignore
 
 bcs = [
-    fn.DirichletBC(W.sub_space(1), fn.Constant(0), is_center_pt, method='pointwise'),
+    fn.DirichletBC(W.sub_space(1),
+                   fn.Constant(0),
+                   is_center_pt,
+                   method='pointwise'),
 ]
 
 M0 = fn.Expression(("0", "1", "0"), degree=2)
@@ -69,7 +74,7 @@ L += fn.Constant(0) * vl * dL
 #
 
 w = fn.Function(W)
-fn.solve(a == L, w, bcs, solver_parameters={'linear_solver': 'lu'})
+fn.solve(a == L, w, bcs)
 
 #
 

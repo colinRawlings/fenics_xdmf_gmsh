@@ -272,16 +272,24 @@ def convert_3d_gmsh_geo_to_fenics_mesh(geo_filepath: str) -> ty.Dict:
         ty.Dict -- dict(mesh=mesh, subdomain_mesh_func=mf_dom, boundary_mesh_func=mf_bnd)
     """
 
+    assert os.path.isfile(geo_filepath), f"{geo_filepath} not found"
+
     with tempfile.TemporaryDirectory() as temp_dir:
         tmp_msh_filepath = os.path.join(str(temp_dir), "tmp_msh.msh")
+
         result = sp.run(["gmsh", "-3", "-o", tmp_msh_filepath, geo_filepath],
                         stdout=sp.PIPE,
                         stderr=sp.PIPE)
+
+        # check (n.b. gmsh does not give an non-zero exit code on meshing failure)
 
         msg = "gmsh failed to create msh\n"
         msg += f"stdout:\n{result.stdout.decode()}\n"
         msg += f"stderr:\n{result.stderr.decode()}"
         assert result.returncode == 0, msg
+
+        msh = meshio.read(tmp_msh_filepath)
+        assert msh.points.shape[0] != 0, msg
 
         mesh_data = convert_3d_gmsh_msh_to_fenics_mesh(tmp_msh_filepath)
 
