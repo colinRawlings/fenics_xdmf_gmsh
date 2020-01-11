@@ -66,7 +66,7 @@ L += fn.Constant(0) * vl * dL
 #
 
 w = fn.Function(W)
-fn.solve(a == L, w, bcs)
+fn.solve(a == L, w, bcs, solver_parameters={'linear_solver': 'lu'})
 
 #
 
