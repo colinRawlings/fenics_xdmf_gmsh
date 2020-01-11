@@ -27,7 +27,6 @@ GEO_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, "ge
 
 msh_filepath = os.path.join(GEO_DIR, "circle_square_center_pt.geo")
 mesh_data = fu.convert_2d_gmsh_geo_to_fenics_mesh(msh_filepath, do_plots=False)
-mesh = mesh_data["mesh"]
 
 mesh_data1 = fu.create_mesh_view(mesh_data["mesh"], mesh_data["subdomain_mesh_func"])
 mesh_data2 = fu.create_mesh_view(mesh_data["mesh"], mesh_data["subdomain_mesh_func"], 2)

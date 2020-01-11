@@ -229,6 +229,29 @@ def convert_3d_gmsh_msh_to_fenics_mesh(msh_filepath: str) -> ty.Dict:
 
     return dict(mesh=mesh, subdomain_mesh_func=mf_dom, boundary_mesh_func=mf_bnd)
 
+#############################################################################
+
+def _check_mesh_conversion_result(result: sp.CompletedProcess, tmp_msh_filepath: str) -> None:
+    """Check the result of running gmsh to create a msh file from a geo file
+
+        n.b. gmsh does not give an non-zero exit code on meshing failure)
+
+    
+    Arguments:
+        
+        result {sp.CompletedProcess} -- [description]
+        tmp_msh_filepath {str} -- [description]
+
+    """
+
+    msg = "gmsh failed to create msh\n"
+    msg += f"stdout:\n{result.stdout.decode()}\n"
+    msg += f"stderr:\n{result.stderr.decode()}"
+    assert result.returncode == 0, msg
+
+    msh = meshio.read(tmp_msh_filepath)
+    assert msh.points.shape[0] != 0, msg
+
 
 #############################################################################
 
@@ -243,16 +266,15 @@ def convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath: str, do_plots: bool = True)
         ty.Dict -- dict(mesh=mesh, subdomain_mesh_func=mf_dom, boundary_mesh_func=mf_bnd)
     """
 
+    assert os.path.isfile(geo_filepath), f"{geo_filepath} not found"
+
     with tempfile.TemporaryDirectory() as temp_dir:
         tmp_msh_filepath = os.path.join(str(temp_dir), "tmp_msh.msh")
         result = sp.run(["gmsh", "-2", "-o", tmp_msh_filepath, geo_filepath],
                         stdout=sp.PIPE,
                         stderr=sp.PIPE)
 
-        msg = "gmsh failed to create msh\n"
-        msg += f"stdout:\n{result.stdout.decode()}\n"
-        msg += f"stderr:\n{result.stderr.decode()}"
-        assert result.returncode == 0, msg
+        _check_mesh_conversion_result(result, tmp_msh_filepath)
 
         mesh_data = convert_2d_gmsh_msh_to_fenics_mesh(tmp_msh_filepath, do_plots=do_plots)
 
@@ -281,15 +303,7 @@ def convert_3d_gmsh_geo_to_fenics_mesh(geo_filepath: str) -> ty.Dict:
                         stdout=sp.PIPE,
                         stderr=sp.PIPE)
 
-        # check (n.b. gmsh does not give an non-zero exit code on meshing failure)
-
-        msg = "gmsh failed to create msh\n"
-        msg += f"stdout:\n{result.stdout.decode()}\n"
-        msg += f"stderr:\n{result.stderr.decode()}"
-        assert result.returncode == 0, msg
-
-        msh = meshio.read(tmp_msh_filepath)
-        assert msh.points.shape[0] != 0, msg
+        _check_mesh_conversion_result(result, tmp_msh_filepath)
 
         mesh_data = convert_3d_gmsh_msh_to_fenics_mesh(tmp_msh_filepath)
 
@@ -341,7 +355,7 @@ def create_mesh_view(mesh: fn.Mesh,
         if mesh_view.topology().dim() == 2:
             cell_midpoint = (c.midpoint().x(), c.midpoint().y())
         elif mesh_view.topology().dim() == 3:
-            cell_midpoint = (c.midpoint().x(), c.midpoint().y(), c.midpoint.z())
+            cell_midpoint = (c.midpoint().x(), c.midpoint().y(), c.midpoint().z())
         else:
             assert False, "Unexpected condition"
 
