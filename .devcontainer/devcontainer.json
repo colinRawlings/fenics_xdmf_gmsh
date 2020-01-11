@@ -35,6 +35,7 @@
         "gruntfuggly.ubertab",
         "2gua.rainbow-brackets",
         "bertrand-thierry.vscode-gmsh",
-        "ms-pyright.pyright"
+        "ms-pyright.pyright",
+        "mhutchie.git-graph"
     ]
 }

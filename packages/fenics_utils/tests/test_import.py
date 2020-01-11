@@ -16,7 +16,7 @@ import fenics_utils as fu
 # Definitions
 ###########################################################
 
-GEO_DIR = rc.resource_filename("fenics_utils", "assets")
+GEO_DIR = rc.resource_filename("fenics_utils", "assets")  # type: ignore
 
 ###########################################################
 # Fixures
