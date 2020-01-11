@@ -22,7 +22,7 @@ GEO_DIR = os.path.abspath("geo")
 ###########################################################
 
 def is_center_pt(x, on_boundary):
-    condition = (abs(x[0] - 0.0) < 10 * fn.DOLFIN_EPS and abs(x[1] - 0.0) < 10 * fn.DOLFIN_EPS)
+    condition = (abs(x[0] - 0.0) < 10 * fn.DOLFIN_EPS and abs(x[1] - 0.0) < 10 * fn.DOLFIN_EPS)  # type: ignore
     return condition
 
 
@@ -60,7 +60,7 @@ dL = fn.Measure("dx", domain=ob_mesh)
 a = fn.inner(fn.grad(u), fn.grad(v)) * fn.dx
 a += fn.inner(fn.grad(ue), fn.grad(ve)) * fn.dx
 L = fn.inner(M0, fn.grad(v)) * dx_mf(2)
-a += (u - ue) * vl * dL + ul * ve * dL
+a += (u - ue) * vl * dL + ul * (ve - v) * dL
 L += fn.Constant(0) * vl * dL
 
 #
