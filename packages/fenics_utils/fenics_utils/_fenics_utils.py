@@ -105,8 +105,8 @@ def convert_2d_gmsh_msh_to_fenics_mesh(msh_filepath: str, do_plots=False) -> ty.
 
     with tempfile.TemporaryDirectory() as temp_dir:
 
-        tmp_domain_filepath = os.path.join(os.path.join(temp_dir, "domains.xdmf"))
-        tmp_boundary_filepath = os.path.join(os.path.join(temp_dir, "boundaries.xdmf"))
+        tmp_domain_filepath = os.path.join(os.path.join(str(temp_dir), "domains.xdmf"))
+        tmp_boundary_filepath = os.path.join(os.path.join(str(temp_dir), "boundaries.xdmf"))
 
         meshio_dom = meshio.Mesh(
             points=msh.points[:, :2],  # Converting to 2D
@@ -131,7 +131,7 @@ def convert_2d_gmsh_msh_to_fenics_mesh(msh_filepath: str, do_plots=False) -> ty.
 
         # Load into fenics
 
-        mesh = fn.cpp.mesh.Mesh()
+        mesh = fn.Mesh()
         with fn.XDMFFile(fn.MPI.comm_world, tmp_domain_filepath) as xdmf_infile:
             xdmf_infile.read(mesh)
 
@@ -181,8 +181,8 @@ def convert_3d_gmsh_msh_to_fenics_mesh(msh_filepath: str) -> ty.Dict:
 
     with tempfile.TemporaryDirectory() as temp_dir:
 
-        tmp_domain_filepath = os.path.join(os.path.join(temp_dir, "domains.xdmf"))
-        tmp_boundary_filepath = os.path.join(os.path.join(temp_dir, "boundaries.xdmf"))
+        tmp_domain_filepath = os.path.join(os.path.join(str(temp_dir), "domains.xdmf"))
+        tmp_boundary_filepath = os.path.join(os.path.join(str(temp_dir), "boundaries.xdmf"))
 
         meshio_dom = meshio.Mesh(
             points=msh.points,  # Converting to 2D
@@ -207,7 +207,7 @@ def convert_3d_gmsh_msh_to_fenics_mesh(msh_filepath: str) -> ty.Dict:
 
         # Load into fenics
 
-        mesh = fn.cpp.mesh.Mesh()
+        mesh = fn.Mesh()
         with fn.XDMFFile(fn.MPI.comm_world, tmp_domain_filepath) as xdmf_infile:
             xdmf_infile.read(mesh)
 
@@ -244,7 +244,7 @@ def convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath: str, do_plots: bool = True)
     """
 
     with tempfile.TemporaryDirectory() as temp_dir:
-        tmp_msh_filepath = os.path.join(temp_dir, "tmp_msh.msh")
+        tmp_msh_filepath = os.path.join(str(temp_dir), "tmp_msh.msh")
         result = sp.run(["gmsh", "-2", "-o", tmp_msh_filepath, geo_filepath],
                         stdout=sp.PIPE,
                         stderr=sp.PIPE)
@@ -273,7 +273,7 @@ def convert_3d_gmsh_geo_to_fenics_mesh(geo_filepath: str) -> ty.Dict:
     """
 
     with tempfile.TemporaryDirectory() as temp_dir:
-        tmp_msh_filepath = os.path.join(temp_dir, "tmp_msh.msh")
+        tmp_msh_filepath = os.path.join(str(temp_dir), "tmp_msh.msh")
         result = sp.run(["gmsh", "-3", "-o", tmp_msh_filepath, geo_filepath],
                         stdout=sp.PIPE,
                         stderr=sp.PIPE)
@@ -317,11 +317,11 @@ def create_mesh_view(mesh: fn.Mesh,
     V = fn.FunctionSpace(mesh, "DG", 0)
     u_smf = fn.Function(V)
 
-    helper = np.asarray(subdomain_mesh_func.array(), dtype=np.int32)
+    helper = np.asarray(subdomain_mesh_func.array(), dtype=np.int32)  # type: ignore
 
     dm = V.dofmap()
     for cell in fn.cells(mesh):
-        helper[dm.cell_dofs(cell.index())] = subdomain_mesh_func[cell]
+        helper[dm.cell_dofs(cell.index())] = subdomain_mesh_func[cell]  # type: ignore
 
     u_smf.vector()[:] = helper
 
@@ -337,7 +337,7 @@ def create_mesh_view(mesh: fn.Mesh,
         else:
             assert False, "Unexpected condition"
 
-        view_smf[c] = int(u_smf(*cell_midpoint))
+        view_smf[c] = int(u_smf(*cell_midpoint))  # type: ignore
 
     return dict(mesh=mesh_view, subdomain_mesh_func=view_smf)
 
