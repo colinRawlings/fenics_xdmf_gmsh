@@ -57,7 +57,7 @@ if __name__ == "__main__":
     a = fn.inner(fn.grad(u), fn.grad(v)) * fn.dx
     a += fn.inner(fn.grad(ue), fn.grad(ve)) * fn.dx
     L = fn.inner(M0, fn.grad(v)) * dx_mf(2)
-    a += (u - ue) * vl * dL + ul * ve * dL
+    a += (u - ue) * vl * dL + ul * (v - ve) * dL
     L += fn.Constant(0) * vl * dL
 
     #

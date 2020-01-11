@@ -185,7 +185,7 @@ def convert_3d_gmsh_msh_to_fenics_mesh(msh_filepath: str) -> ty.Dict:
         tmp_boundary_filepath = os.path.join(os.path.join(temp_dir, "boundaries.xdmf"))
 
         meshio_dom = meshio.Mesh(
-            points=msh.points,  # Converting to 2D
+            points=msh.points,
             cells={"tetra": msh.cells["tetra"]},
             cell_data={"tetra": {
                 "subdomain": msh.cell_data["tetra"]["gmsh:physical"]
@@ -197,7 +197,7 @@ def convert_3d_gmsh_msh_to_fenics_mesh(msh_filepath: str) -> ty.Dict:
         #
 
         meshio_bnd = meshio.Mesh(
-            points=msh.points,  # Converting to 2D
+            points=msh.points,
             cells={"triangle": msh.cells["triangle"]},
             cell_data={"triangle": {
                 "boundaries": msh.cell_data["triangle"]["gmsh:physical"]
