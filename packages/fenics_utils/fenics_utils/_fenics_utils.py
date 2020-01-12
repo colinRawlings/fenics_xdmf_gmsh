@@ -11,7 +11,6 @@ import shutil
 import subprocess as sp
 import typing as ty
 import tempfile
-from dolfin.mesh.meshfunction import MeshFunction
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -343,14 +342,12 @@ def convert_3d_gmsh_geo_to_fenics_mesh(geo_filepath: str) -> LabelledMesh:
 #############################################################################
 
 
-def create_mesh_view(mesh: fn.Mesh,
-                     subdomain_mesh_func: fn.MeshFunction,
+def create_mesh_view(labelled_mesh: LabelledMesh,
                      domain_index: ty.Optional[int] = None) -> LabelledMesh:
     """[summary]
     
     Arguments:
-        mesh {fn.Mesh} -- [description]
-        subdomain_mesh_func {fn.MeshFunction} -- [description]
+        labelled_mesh {LabelledMesh} -- [description]
         domain_index {int} -- [description] If none return entire mesh as view
     
     Returns:
@@ -358,22 +355,22 @@ def create_mesh_view(mesh: fn.Mesh,
     """
 
     if domain_index is None:
-        marker = fn.MeshFunction("size_t", mesh,
-                                 mesh.topology().dim(), 0)  # mark entirety of the full mesh
+        marker = fn.MeshFunction("size_t", labelled_mesh.mesh,
+                                 labelled_mesh.mesh.topology().dim(), 0)  # mark entirety of the full mesh
         mesh_view = fn.MeshView.create(marker, 0)
     else:
-        mesh_view = fn.MeshView.create(subdomain_mesh_func, domain_index)
+        mesh_view = fn.MeshView.create(labelled_mesh.subdomain_mesh_func, domain_index)
 
     # make expression for original mesh
 
-    V = fn.FunctionSpace(mesh, "DG", 0)
+    V = fn.FunctionSpace(labelled_mesh.mesh, "DG", 0)
     u_smf = fn.Function(V)
 
-    helper = np.asarray(subdomain_mesh_func.array(), dtype=np.int32)  # type: ignore
+    helper = np.asarray(labelled_mesh.subdomain_mesh_func.array(), dtype=np.int32)  # type: ignore
 
     dm = V.dofmap()
-    for cell in fn.cells(mesh):
-        helper[dm.cell_dofs(cell.index())] = subdomain_mesh_func[cell]  # type: ignore
+    for cell in fn.cells(labelled_mesh.mesh):
+        helper[dm.cell_dofs(cell.index())] = labelled_mesh.subdomain_mesh_func[cell]  # type: ignore
 
     u_smf.vector()[:] = helper
 

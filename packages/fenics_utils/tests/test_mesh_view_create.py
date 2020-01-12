@@ -29,7 +29,7 @@ def test_view_on_full_mesh_2d():
     msh_filepath = os.path.join(GEO_DIR, "simple_poisson_2d.geo")
     labelled_mesh = fu.convert_2d_gmsh_geo_to_fenics_mesh(msh_filepath, do_plots=False)
 
-    labelled_mesh1 = fu.create_mesh_view(labelled_mesh.mesh, labelled_mesh.subdomain_mesh_func)
+    labelled_mesh1 = fu.create_mesh_view(labelled_mesh)
 
     smf_view = labelled_mesh1.subdomain_mesh_func
     smf_vals = np.asarray(smf_view.array(), dtype=np.int32)  # type: ignore
@@ -43,7 +43,7 @@ def test_view_on_sub_mesh_2d():
     msh_filepath = os.path.join(GEO_DIR, "simple_poisson_2d.geo")
     labelled_mesh = fu.convert_2d_gmsh_geo_to_fenics_mesh(msh_filepath, do_plots=False)
 
-    labelled_mesh1 = fu.create_mesh_view(labelled_mesh.mesh, labelled_mesh.subdomain_mesh_func, 2)
+    labelled_mesh1 = fu.create_mesh_view(labelled_mesh, 2)
 
     smf_view = labelled_mesh1.subdomain_mesh_func
     smf_vals = np.asarray(smf_view.array(), dtype=np.int32)  # type: ignore
@@ -57,7 +57,7 @@ def test_view_on_full_mesh_3d():
     msh_filepath = os.path.join(GEO_DIR, "simple_poisson_3d.geo")
     labelled_mesh = fu.convert_3d_gmsh_geo_to_fenics_mesh(msh_filepath)
 
-    labelled_mesh1 = fu.create_mesh_view(labelled_mesh.mesh, labelled_mesh.subdomain_mesh_func)
+    labelled_mesh1 = fu.create_mesh_view(labelled_mesh)
 
     smf_view = labelled_mesh1.subdomain_mesh_func
     smf_vals = np.asarray(smf_view.array(), dtype=np.int32)  # type: ignore
@@ -71,7 +71,7 @@ def test_view_on_sub_mesh_3d():
     msh_filepath = os.path.join(GEO_DIR, "simple_poisson_3d.geo")
     labelled_mesh = fu.convert_3d_gmsh_geo_to_fenics_mesh(msh_filepath)
 
-    labelled_mesh1 = fu.create_mesh_view(labelled_mesh.mesh, labelled_mesh.subdomain_mesh_func, 2)
+    labelled_mesh1 = fu.create_mesh_view(labelled_mesh, 2)
 
     smf_view = labelled_mesh1.subdomain_mesh_func
     smf_vals = np.asarray(smf_view.array(), dtype=np.int32)  # type: ignore
