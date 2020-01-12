@@ -5,7 +5,8 @@ from ._fenics_utils import (convert_2d_gmsh_msh_to_fenics_mesh,
                             solve_weak_form,
                             create_mesh_view,
                             newton_solver_parameters,
-                            IsBoundary)
+                            IsBoundary,
+                            LabelledMesh)
 
 __all__ = [
     "convert_2d_gmsh_msh_to_fenics_mesh",
@@ -15,5 +16,6 @@ __all__ = [
     "solve_weak_form",
     "create_mesh_view",
     "newton_solver_parameters",
-    "IsBoundary"
+    "IsBoundary",
+    "LabelledMesh"
 ]

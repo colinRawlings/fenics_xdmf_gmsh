@@ -38,14 +38,14 @@ def is_center_pt(x, on_boundary):
 # import mesh
 
 msh_filepath = os.path.join(GEO_DIR, "sph_sph_center_pt.geo")
-mesh_data = fu.convert_3d_gmsh_geo_to_fenics_mesh(msh_filepath)
+labelled_mesh = fu.convert_3d_gmsh_geo_to_fenics_mesh(msh_filepath)
 
 # magnetic equation
 
-ob_mesh = fn.MeshView.create(mesh_data["boundary_mesh_func"], 1)
+ob_mesh = fn.MeshView.create(labelled_mesh.boundary_mesh_func, 1)
 
-V = fn.FunctionSpace(mesh_data["mesh"], "CG", 2)
-VE = fn.FunctionSpace(mesh_data["mesh"], "CG", 2)
+V = fn.FunctionSpace(labelled_mesh.mesh, "CG", 2)
+VE = fn.FunctionSpace(labelled_mesh.mesh, "CG", 2)
 VL = fn.FunctionSpace(ob_mesh, "CG", 2)
 W = fn.MixedFunctionSpace(V, VE, VL)
 
@@ -61,8 +61,8 @@ bcs = [
 
 M0 = fn.Expression(("0", "1", "0"), degree=2)
 
-dx_mf = fn.dx(subdomain_data=mesh_data["subdomain_mesh_func"])
-ds_mf = fn.dx(subdomain_data=mesh_data["boundary_mesh_func"])
+dx_mf = fn.dx(subdomain_data=labelled_mesh.subdomain_mesh_func)
+ds_mf = fn.dx(subdomain_data=labelled_mesh.boundary_mesh_func)
 dL = fn.Measure("dx", domain=ob_mesh)
 
 a = fn.inner(fn.grad(u), fn.grad(v)) * fn.dx

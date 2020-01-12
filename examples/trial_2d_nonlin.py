@@ -22,25 +22,24 @@ GEO_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, "ge
 # Main
 ###########################################################
 
-    
 # Create meshes
 
 msh_filepath = os.path.join(GEO_DIR, "circle_square_center_pt.geo")
-mesh_data = fu.convert_2d_gmsh_geo_to_fenics_mesh(msh_filepath, do_plots=False)
+labelled_mesh = fu.convert_2d_gmsh_geo_to_fenics_mesh(msh_filepath, do_plots=False)
 
-mesh_data1 = fu.create_mesh_view(mesh_data["mesh"], mesh_data["subdomain_mesh_func"])
-mesh_data2 = fu.create_mesh_view(mesh_data["mesh"], mesh_data["subdomain_mesh_func"], 2)
-
-plt.figure()
-fn.plot(mesh_data1["mesh"], title="mesh1")
+labelled_mesh1 = fu.create_mesh_view(labelled_mesh.mesh, labelled_mesh.subdomain_mesh_func)
+labelled_mesh2 = fu.create_mesh_view(labelled_mesh.mesh, labelled_mesh.subdomain_mesh_func, 2)
 
 plt.figure()
-fn.plot(mesh_data2["mesh"], title="mesh2")
+fn.plot(labelled_mesh1.mesh, title="mesh1")
+
+plt.figure()
+fn.plot(labelled_mesh2.mesh, title="mesh2")
 plt.show()
 
 # Create function spaces
-W1 = fn.FunctionSpace(mesh_data1["mesh"], "Lagrange", 1)
-W2 = fn.FunctionSpace(mesh_data2["mesh"], "Lagrange", 1)
+W1 = fn.FunctionSpace(labelled_mesh1.mesh, "Lagrange", 1)
+W2 = fn.FunctionSpace(labelled_mesh2.mesh, "Lagrange", 1)
 
 W = fn.MixedFunctionSpace(W1, W2)
 
@@ -57,8 +56,12 @@ u = fn.Function(W)
 u1 = u.sub(0)
 u2 = u.sub(1)
 
-dx1 = fn.Measure("dx", domain=W.sub_space(0).mesh(), subdomain_data=mesh_data1["subdomain_mesh_func"])
-dx2 = fn.Measure("dx", domain=W.sub_space(1).mesh(), subdomain_data=mesh_data2["subdomain_mesh_func"])
+dx1 = fn.Measure("dx",
+                 domain=W.sub_space(0).mesh(),
+                 subdomain_data=labelled_mesh1.subdomain_mesh_func)
+dx2 = fn.Measure("dx",
+                 domain=W.sub_space(1).mesh(),
+                 subdomain_data=labelled_mesh2.subdomain_mesh_func)
 
 F1 = fn.inner((fn.Constant(1) + u1 * u1) * fn.grad(u1), fn.grad(v1)) * dx1  # type: ignore
 F1 -= fn.Constant(400) * (fn.Constant(1) + u2) * f * v1 * dx1(2)

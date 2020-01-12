@@ -29,17 +29,17 @@ GEO_DIR = rc.resource_filename("fenics_utils", "assets")  # type: ignore
 
 def test_2d_geo_import_and_solve():
     geo_filepath = os.path.join(GEO_DIR, "simple_poisson_2d.geo")
-    mesh_data = fu.convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath)
+    labelled_mesh = fu.convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath)
 
     # Solve a dummy problem
 
-    V = fn.FunctionSpace(mesh_data["mesh"], "CG", 2)
+    V = fn.FunctionSpace(labelled_mesh.mesh, "CG", 2)
     u = fn.TrialFunction(V)
     v = fn.TestFunction(V)
 
-    bcs = [fn.DirichletBC(V, fn.Constant(0), mesh_data["boundary_mesh_func"], 2)]
+    bcs = [fn.DirichletBC(V, fn.Constant(0), labelled_mesh.boundary_mesh_func, 2)]
 
-    dx_mf = fn.dx(subdomain_data=mesh_data["subdomain_mesh_func"])
+    dx_mf = fn.dx(subdomain_data=labelled_mesh.subdomain_mesh_func)
 
     F = fn.inner(fn.grad(u), fn.grad(v)) * fn.dx
     F += fn.Constant(10) * u * v * fn.dx
@@ -56,17 +56,17 @@ def test_2d_geo_import_and_solve():
 
 def test_3d_geo_import_and_solve():
     geo_filepath = os.path.join(GEO_DIR, "simple_poisson_3d.geo")
-    mesh_data = fu.convert_3d_gmsh_geo_to_fenics_mesh(geo_filepath)
+    labelled_mesh = fu.convert_3d_gmsh_geo_to_fenics_mesh(geo_filepath)
 
     # Solve a dummy problem
 
-    V = fn.FunctionSpace(mesh_data["mesh"], "CG", 2)
+    V = fn.FunctionSpace(labelled_mesh.mesh, "CG", 2)
     u = fn.TrialFunction(V)
     v = fn.TestFunction(V)
 
-    bcs = [fn.DirichletBC(V, fn.Constant(0), mesh_data["boundary_mesh_func"], 2)]
+    bcs = [fn.DirichletBC(V, fn.Constant(0), labelled_mesh.boundary_mesh_func, 2)]
 
-    dx_mf = fn.dx(subdomain_data=mesh_data["subdomain_mesh_func"])
+    dx_mf = fn.dx(subdomain_data=labelled_mesh.subdomain_mesh_func)
 
     F = fn.inner(fn.grad(u), fn.grad(v)) * fn.dx
     F += fn.Constant(10) * u * v * fn.dx

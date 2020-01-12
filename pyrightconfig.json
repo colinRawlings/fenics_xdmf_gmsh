@@ -1,5 +1,7 @@
 {
     "include": [
-        "examples"
+        "examples",
+        "tests",
+        "packages/fenics_utils"
     ]
 }

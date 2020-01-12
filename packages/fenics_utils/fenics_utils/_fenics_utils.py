@@ -11,6 +11,7 @@ import shutil
 import subprocess as sp
 import typing as ty
 import tempfile
+from dolfin.mesh.meshfunction import MeshFunction
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -18,11 +19,38 @@ import matplotlib.pyplot as plt
 import meshio
 import dolfin as fn
 
+from typing import Optional
+
 #############################################################################
 # CONSTANTS
 #############################################################################
 
 PARAVIEW_TMP_FOLDERPATH = os.path.abspath("./paraview_tmp")
+
+#############################################################################
+# DEFINITIONS
+#############################################################################
+
+
+class LabelledMesh():
+    def __init__(self, mesh: fn.Mesh, subdomain_mesh_func: fn.MeshFunction,
+                 boundary_mesh_func: Optional[fn.MeshFunction] = None) -> None:
+        self._mesh = mesh
+        self._subdomain_mesh_func = subdomain_mesh_func
+        self._boundary_mesh_func = boundary_mesh_func
+
+    @property
+    def mesh(self) -> fn.Mesh:
+        return self._mesh
+
+    @property
+    def subdomain_mesh_func(self) -> fn.MeshFunction:
+        return self._subdomain_mesh_func
+
+    @property
+    def boundary_mesh_func(self) -> Optional[fn.MeshFunction]:
+        return self._boundary_mesh_func
+
 
 #############################################################################
 # FUNCTIONS
@@ -88,7 +116,7 @@ def close_all_paraview() -> None:
 #############################################################################
 
 
-def convert_2d_gmsh_msh_to_fenics_mesh(msh_filepath: str, do_plots=False) -> ty.Dict:
+def convert_2d_gmsh_msh_to_fenics_mesh(msh_filepath: str, do_plots=False) -> LabelledMesh:
     """[convert_2d_gmsh_msh_to_fenics_mesh]
     
     Arguments:
@@ -96,7 +124,7 @@ def convert_2d_gmsh_msh_to_fenics_mesh(msh_filepath: str, do_plots=False) -> ty.
         do_plots {bool} 
     
     Returns:
-        ty.Dict -- dict(mesh=mesh, subdomain_mesh_func=mf_dom, boundary_mesh_func=mf_bnd)
+        LabelledMesh
     """
 
     msh = meshio.read(msh_filepath)
@@ -159,20 +187,20 @@ def convert_2d_gmsh_msh_to_fenics_mesh(msh_filepath: str, do_plots=False) -> ty.
         plt.figure()
         c = fn.plot(mesh, title="mesh")
 
-    return dict(mesh=mesh, subdomain_mesh_func=mf_dom, boundary_mesh_func=mf_bnd)
+    return LabelledMesh(mesh=mesh, subdomain_mesh_func=mf_dom, boundary_mesh_func=mf_bnd)
 
 
 #############################################################################
 
 
-def convert_3d_gmsh_msh_to_fenics_mesh(msh_filepath: str) -> ty.Dict:
+def convert_3d_gmsh_msh_to_fenics_mesh(msh_filepath: str) -> LabelledMesh:
     """[convert_3d_gmsh_msh_to_fenics_mesh]
     
     Arguments:
         msh_filepath {str} -- 
     
     Returns:
-        ty.Dict -- dict(mesh=mesh, subdomain_mesh_func=mf_dom, boundary_mesh_func=mf_bnd)
+        LabelledMesh
     """
 
     msh = meshio.read(msh_filepath)
@@ -227,9 +255,11 @@ def convert_3d_gmsh_msh_to_fenics_mesh(msh_filepath: str) -> ty.Dict:
 
         mf_bnd = fn.MeshFunction("size_t", mesh, mvc_bnd)
 
-    return dict(mesh=mesh, subdomain_mesh_func=mf_dom, boundary_mesh_func=mf_bnd)
+    return LabelledMesh(mesh=mesh, subdomain_mesh_func=mf_dom, boundary_mesh_func=mf_bnd)
+
 
 #############################################################################
+
 
 def _check_mesh_conversion_result(result: sp.CompletedProcess, tmp_msh_filepath: str) -> None:
     """Check the result of running gmsh to create a msh file from a geo file
@@ -256,14 +286,14 @@ def _check_mesh_conversion_result(result: sp.CompletedProcess, tmp_msh_filepath:
 #############################################################################
 
 
-def convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath: str, do_plots: bool = True) -> ty.Dict:
+def convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath: str, do_plots: bool = True) -> LabelledMesh:
     """[convert_2d_gmsh_geo_to_fenics_mesh]
     
     Arguments:
         geo_filepath {str} -- 
     
     Returns:
-        ty.Dict -- dict(mesh=mesh, subdomain_mesh_func=mf_dom, boundary_mesh_func=mf_bnd)
+        LabelledMesh
     """
 
     assert os.path.isfile(geo_filepath), f"{geo_filepath} not found"
@@ -284,14 +314,14 @@ def convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath: str, do_plots: bool = True)
 #############################################################################
 
 
-def convert_3d_gmsh_geo_to_fenics_mesh(geo_filepath: str) -> ty.Dict:
+def convert_3d_gmsh_geo_to_fenics_mesh(geo_filepath: str) -> LabelledMesh:
     """[convert_3d_gmsh_geo_to_fenics_mesh]
     
     Arguments:
         geo_filepath {str} -- 
     
     Returns:
-        ty.Dict -- dict(mesh=mesh, subdomain_mesh_func=mf_dom, boundary_mesh_func=mf_bnd)
+        LabelledMesh
     """
 
     assert os.path.isfile(geo_filepath), f"{geo_filepath} not found"
@@ -315,7 +345,7 @@ def convert_3d_gmsh_geo_to_fenics_mesh(geo_filepath: str) -> ty.Dict:
 
 def create_mesh_view(mesh: fn.Mesh,
                      subdomain_mesh_func: fn.MeshFunction,
-                     domain_index: ty.Optional[int] = None) -> ty.Dict[str, ty.Any]:
+                     domain_index: ty.Optional[int] = None) -> LabelledMesh:
     """[summary]
     
     Arguments:
@@ -324,7 +354,7 @@ def create_mesh_view(mesh: fn.Mesh,
         domain_index {int} -- [description] If none return entire mesh as view
     
     Returns:
-        ty.Dict[str, ty.Any] -- [description]
+        LabelledMesh
     """
 
     if domain_index is None:
@@ -361,9 +391,11 @@ def create_mesh_view(mesh: fn.Mesh,
 
         view_smf[c] = int(u_smf(*cell_midpoint))  # type: ignore
 
-    return dict(mesh=mesh_view, subdomain_mesh_func=view_smf)
+    return LabelledMesh(mesh=mesh_view, subdomain_mesh_func=view_smf)
+
 
 #############################################################################
+
 
 def newton_solver_parameters():
     return {"nonlinear_solver": "newton", "newton_solver": {"linear_solver": "gmres"}}
@@ -470,9 +502,11 @@ def save_function(u, function_filepath=None, open_file=False):
 
     return function_filepath
 
+
 ###########################################################
 # Classes
 ###########################################################
+
 
 class IsBoundary(fn.SubDomain):
     def inside(self, x, on_boundary):
