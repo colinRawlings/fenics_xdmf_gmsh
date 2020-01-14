@@ -68,13 +68,13 @@ dL = fn.Measure("dx", domain=ob_mesh)
 a = fn.inner(fn.grad(u), fn.grad(v)) * fn.dx
 a += fn.inner(fn.grad(ue), fn.grad(ve)) * fn.dx
 L = fn.inner(M0, fn.grad(v)) * dx_mf(2)
-a += (u - ue) * vl * dL + ul * (ve - v) * dL
+a += (u - ue) * vl * dL + ul * (v - ve) * dL
 L += fn.Constant(0) * vl * dL
 
 #
 
 w = fn.Function(W)
-fn.solve(a == L, w, bcs)
+fn.solve(a == L, w, bcs, solver_parameters={"linear_solver": "lu"})
 
 #
 
