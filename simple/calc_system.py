@@ -1,9 +1,13 @@
 # !python3
-
 """
-Print the system matrices for a one dimensional problem treated
-using CG1 elements such that it may be easily compared with 
-the expected system matrices.
+Print the system matrices for a one dimensional problem:
+
+    dO: u'' - 1 = 0
+    lhs: u = 0.5
+    rhs: u' = 0
+
+treated using CG1 elements such that it may be easily compared 
+with  the expected system matrices.
 
 n.b. the use of the stable container since one d meshes seem
 broken in the the MeshView dev container.
@@ -74,9 +78,9 @@ if __name__ == "__main__":
         condition = abs(x[0] - 0.0) < 10 * fn.DOLFIN_EPS
         return condition
 
-    bcs = [fn.DirichletBC(V, fn.Constant(0), is_lhs, method='pointwise')]
+    bcs = [fn.DirichletBC(V, fn.Constant(0.5), is_lhs, method='pointwise')]
 
-    a = fn.inner(fn.grad(u), fn.grad(v)) * fn.dx
+    a = fn.Constant(-1) * fn.inner(fn.grad(u), fn.grad(v)) * fn.dx
     L = fn.Constant(F_VAL) * v * fn.dx
 
     u = fn.Function(V)
@@ -85,7 +89,10 @@ if __name__ == "__main__":
 
     plt.figure()
     ax = plt.gca()
-    fn.plot(u, title="solution")
+    line_u = fn.plot(u, title="solution", label="fenics")
+    x = np.linspace(0, 1)
+    line_anl = ax.plot(x, 0.5 * x**2 - x + 0.5, ":k", label="anl")
+    plt.legend()
     ax.set_xlabel("x")
     ax.set_ylabel("u")
 
