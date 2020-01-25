@@ -24,3 +24,12 @@ RUN pip install -r /home/fenics/pkgs/requirements-dev.txt
 RUN curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
 RUN apt-get install nodejs
 RUN npm install -g pyright@${vPYRIGHT_VERSION}
+
+# fenicstools
+
+# (install missing fenicstools deps: https://github.com/mikaem/fenicstools/issues/26)
+RUN pip3 install cppimport
+RUN apt-get install -y python3-h5py
+RUN pip3 install pyvtk
+
+RUN pip3 install git+https://github.com/mikaem/fenicstools

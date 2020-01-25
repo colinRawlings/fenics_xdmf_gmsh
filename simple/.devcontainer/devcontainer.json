@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/vscode-remote/devcontainer.json or the definition README at
 // https://github.com/microsoft/vscode-dev-containers/tree/master/containers/docker-existing-dockerfile
 {
-    "name": "Fenics Multimesh Dockerfile",
+    "name": "Fenics Stable Dockerfile",
     // Sets the run context to one level up instead of the .devcontainer folder.
     "context": "..",
     // Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
@@ -26,7 +26,7 @@
     // your server accepts connections from all interfaces (0.0.0.0 or '*'), not just localhost.
     // "appPort": [],
     // Uncomment the next line to run commands after the container is created - for example installing git.
-    "postCreateCommand": "pip install -e /workspaces/fenics_xdmf_gmsh/xdmf_gmsh/packages/fenics_utils",
+    //"postCreateCommand": "pip install -e /workspaces/fenics_ab_initio/packages/fenics_utils",
     // Add the IDs of extensions you want installed when the container is created in the array below.
     "extensions": [
         "ms-python.python",
@@ -35,8 +35,6 @@
         "gruntfuggly.ubertab",
         "2gua.rainbow-brackets",
         "bertrand-thierry.vscode-gmsh",
-        "ms-pyright.pyright",
-        "mhutchie.git-graph",
-        "ryuta46.multi-command"
+        "ms-pyright.pyright"
     ]
 }

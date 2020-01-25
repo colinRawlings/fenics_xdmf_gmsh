@@ -32,11 +32,54 @@ PARAVIEW_TMP_FOLDERPATH = os.path.abspath("./paraview_tmp")
 
 
 class LabelledMesh():
-    def __init__(self, mesh: fn.Mesh, subdomain_mesh_func: fn.MeshFunction,
+    def __init__(self,
+                 mesh: fn.Mesh,
+                 subdomain_mesh_func: fn.MeshFunction,
                  boundary_mesh_func: Optional[fn.MeshFunction] = None) -> None:
-        self._mesh = mesh
-        self._subdomain_mesh_func = subdomain_mesh_func
-        self._boundary_mesh_func = boundary_mesh_func
+
+        # copy inputs
+
+        self._mesh = fn.Mesh(mesh)
+        assert id(self._mesh) != id(mesh)
+
+        #
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+
+            tmp_mf_filepath = os.path.join(str(temp_dir), "domain_mf.xdmf")
+
+            with fn.XDMFFile(fn.MPI.comm_world, tmp_mf_filepath) as tmp_file_out:
+                tmp_file_out.write(subdomain_mesh_func)
+
+            self._subdomain_mesh_func = fn.MeshFunction("size_t", self._mesh,
+                                                        self._mesh.geometric_dimension())
+            with fn.XDMFFile(fn.MPI.comm_world, tmp_mf_filepath) as tmp_file_in:
+                tmp_file_in.read(self._subdomain_mesh_func)
+
+        assert id(self._subdomain_mesh_func) != id(subdomain_mesh_func)
+
+        #
+
+        self._boundary_mesh_func = None
+
+        if boundary_mesh_func is None:
+            return
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+
+            tmp_mf_filepath = os.path.join(str(temp_dir), "boundary_mf.xdmf")
+
+            with fn.XDMFFile(fn.MPI.comm_world, tmp_mf_filepath) as tmp_file_out:
+                tmp_file_out.write(boundary_mesh_func)
+
+            self._boundary_mesh_func = fn.MeshFunction("size_t", self._mesh,
+                                                        self._mesh.geometric_dimension() - 1)
+            with fn.XDMFFile(fn.MPI.comm_world, tmp_mf_filepath) as tmp_file_in:
+                tmp_file_in.read(self._boundary_mesh_func)
+        
+        assert id(self._boundary_mesh_func) != id(boundary_mesh_func)
+        
+        
 
     @property
     def mesh(self) -> fn.Mesh:
@@ -285,7 +328,34 @@ def _check_mesh_conversion_result(result: sp.CompletedProcess, tmp_msh_filepath:
 #############################################################################
 
 
-def convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath: str, do_plots: bool = True) -> LabelledMesh:
+def _construct_param_args(geo_params: ty.Optional[ty.Dict["str", float]]) -> ty.List[str]:
+    """convert the params in the supplied dict into the corresponding
+    command line args for gmsh
+    
+    Arguments:
+        geo_params {ty.Optional[ty.Dict[} -- [description]
+    
+    Returns:
+        ty.List[str] -- [description]
+    """
+
+    param_args = []
+
+    if not geo_params:
+        return param_args
+
+    for geo_param in geo_params:
+        param_args += ["-setnumber", geo_param, str(geo_params[geo_param])]
+
+    return param_args
+
+
+#############################################################################
+
+
+def convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath: str,
+                                       geo_params: ty.Optional[ty.Dict["str", float]] = None,
+                                       do_plots: bool = False) -> LabelledMesh:
     """[convert_2d_gmsh_geo_to_fenics_mesh]
     
     Arguments:
@@ -299,9 +369,11 @@ def convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath: str, do_plots: bool = True)
 
     with tempfile.TemporaryDirectory() as temp_dir:
         tmp_msh_filepath = os.path.join(str(temp_dir), "tmp_msh.msh")
-        result = sp.run(["gmsh", "-2", "-o", tmp_msh_filepath, geo_filepath],
-                        stdout=sp.PIPE,
-                        stderr=sp.PIPE)
+
+        param_args = _construct_param_args(geo_params)
+        cmd_list = ["gmsh", "-2"] + param_args + ["-o", tmp_msh_filepath, geo_filepath]
+
+        result = sp.run(cmd_list, stdout=sp.PIPE, stderr=sp.PIPE)
 
         _check_mesh_conversion_result(result, tmp_msh_filepath)
 
@@ -313,7 +385,8 @@ def convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath: str, do_plots: bool = True)
 #############################################################################
 
 
-def convert_3d_gmsh_geo_to_fenics_mesh(geo_filepath: str) -> LabelledMesh:
+def convert_3d_gmsh_geo_to_fenics_mesh(geo_filepath: str,
+                                       geo_params: ty.Optional[ty.Dict["str", float]] = None) -> LabelledMesh:
     """[convert_3d_gmsh_geo_to_fenics_mesh]
     
     Arguments:
@@ -328,9 +401,10 @@ def convert_3d_gmsh_geo_to_fenics_mesh(geo_filepath: str) -> LabelledMesh:
     with tempfile.TemporaryDirectory() as temp_dir:
         tmp_msh_filepath = os.path.join(str(temp_dir), "tmp_msh.msh")
 
-        result = sp.run(["gmsh", "-3", "-o", tmp_msh_filepath, geo_filepath],
-                        stdout=sp.PIPE,
-                        stderr=sp.PIPE)
+        param_args = _construct_param_args(geo_params)
+        cmd_list = ["gmsh", "-3"] + param_args + ["-o", tmp_msh_filepath, geo_filepath]
+
+        result = sp.run(cmd_list, stdout=sp.PIPE, stderr=sp.PIPE)
 
         _check_mesh_conversion_result(result, tmp_msh_filepath)
 
@@ -342,8 +416,7 @@ def convert_3d_gmsh_geo_to_fenics_mesh(geo_filepath: str) -> LabelledMesh:
 #############################################################################
 
 
-def create_mesh_view(labelled_mesh: LabelledMesh,
-                     domain_index: ty.Optional[int] = None) -> LabelledMesh:
+def create_mesh_view(labelled_mesh: LabelledMesh, domain_index: ty.Optional[int] = None) -> LabelledMesh:
     """[summary]
     
     Arguments:
