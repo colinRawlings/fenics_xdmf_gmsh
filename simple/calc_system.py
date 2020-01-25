@@ -57,68 +57,66 @@ def np_array_from_fenics(Af: ty.Any) -> np.array:
 # Main
 ###########################################################
 
-if __name__ == "__main__":
+# mesh
 
-    # mesh
+mesh = fn.UnitIntervalMesh(NUM_CELLS)
 
-    mesh = fn.UnitIntervalMesh(NUM_CELLS)
+V = fn.FunctionSpace(mesh, "CG", 1)
+u = fn.TrialFunction(V)
+v = fn.TestFunction(V)
 
-    V = fn.FunctionSpace(mesh, "CG", 1)
-    u = fn.TrialFunction(V)
-    v = fn.TestFunction(V)
+plt.figure()
+ax = plt.gca()
+fn.plot(mesh, title="mesh")
 
-    plt.figure()
-    ax = plt.gca()
-    fn.plot(mesh, title="mesh")
+for dof_n, dof_x in enumerate(V.tabulate_dof_coordinates()):
+    ax.annotate(f"dof: {dof_n}", (dof_x, 0))
 
-    for dof_n, dof_x in enumerate(V.tabulate_dof_coordinates()):
-        ax.annotate(f"dof: {dof_n}", (dof_x, 0))
+def is_lhs(x, on_boundary):
+    condition = abs(x[0] - 0.0) < 10 * fn.DOLFIN_EPS
+    return condition
 
-    def is_lhs(x, on_boundary):
-        condition = abs(x[0] - 0.0) < 10 * fn.DOLFIN_EPS
-        return condition
+bcs = [fn.DirichletBC(V, fn.Constant(0.5), is_lhs, method='pointwise')]
 
-    bcs = [fn.DirichletBC(V, fn.Constant(0.5), is_lhs, method='pointwise')]
+a = fn.Constant(-1) * fn.inner(fn.grad(u), fn.grad(v)) * fn.dx
+L = fn.Constant(F_VAL) * v * fn.dx
 
-    a = fn.Constant(-1) * fn.inner(fn.grad(u), fn.grad(v)) * fn.dx
-    L = fn.Constant(F_VAL) * v * fn.dx
+u = fn.Function(V)
 
-    u = fn.Function(V)
+fn.solve(a == L, u, bcs)
 
-    fn.solve(a == L, u, bcs)
+plt.figure()
+ax = plt.gca()
+line_u = fn.plot(u, title="solution", label="fenics")
+x = np.linspace(0, 1)
+line_anl = ax.plot(x, 0.5 * x**2 - x + 0.5, ":k", label="anl")
+plt.legend()
+ax.set_xlabel("x")
+ax.set_ylabel("u")
 
-    plt.figure()
-    ax = plt.gca()
-    line_u = fn.plot(u, title="solution", label="fenics")
-    x = np.linspace(0, 1)
-    line_anl = ax.plot(x, 0.5 * x**2 - x + 0.5, ":k", label="anl")
-    plt.legend()
-    ax.set_xlabel("x")
-    ax.set_ylabel("u")
+plt.show()
 
-    plt.show()
+#
 
-    #
+print(f"{'='*SECTION_DISPLAY_WIDTH}\nMatrices\n{'='*SECTION_DISPLAY_WIDTH}")
 
-    print(f"{'='*SECTION_DISPLAY_WIDTH}\nMatrices\n{'='*SECTION_DISPLAY_WIDTH}")
+dx_anl = 1 / NUM_CELLS
 
-    dx_anl = 1 / NUM_CELLS
+print(f"\nBefore BC applied\n{'-'*SECTION_DISPLAY_WIDTH}")
 
-    print(f"\nBefore BC applied\n{'-'*SECTION_DISPLAY_WIDTH}")
+Af = fn.assemble(a)
+Lf = fn.assemble(L)
 
-    Af = fn.assemble(a)
-    Lf = fn.assemble(L)
+print(f"A:\n{np_array_from_fenics(Af)}")
+print(f"anl coeffs: (-1 *) (2 *) 1/dx * 1/dx * dx: (-1 *) (2 *) {1/dx_anl}")
 
-    print(f"A:\n{np_array_from_fenics(Af)}")
-    print(f"anl coeffs: (-1 *) (2 *) 1/dx * 1/dx * dx: (-1 *) (2 *) {1/dx_anl}")
+print(f"L:\n{np_array_from_fenics(Lf).reshape(-1, 1)}")
+print(f"anl coeffs: (2 *) 0.5*dx*f(x): (2 *) {0.5 * dx_anl * F_VAL}")
 
-    print(f"L:\n{np_array_from_fenics(Lf).reshape(-1, 1)}")
-    print(f"anl coeffs: (2 *) 0.5*dx*f(x): (2 *) {0.5 * dx_anl * F_VAL}")
+print(f"\nAfter BC applied\n{'-'*SECTION_DISPLAY_WIDTH}")
 
-    print(f"\nAfter BC applied\n{'-'*SECTION_DISPLAY_WIDTH}")
+bcs[0].apply(Af)
+bcs[0].apply(Lf)
 
-    bcs[0].apply(Af)
-    bcs[0].apply(Lf)
-
-    print(f"Af: \n{np_array_from_fenics(Af)}")
-    print(f"Lf: \n{np_array_from_fenics(Lf).reshape(-1, 1)}")
+print(f"Af: \n{np_array_from_fenics(Af)}")
+print(f"Lf: \n{np_array_from_fenics(Lf).reshape(-1, 1)}")
