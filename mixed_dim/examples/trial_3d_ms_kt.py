@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 # Definitions
 ###########################################################
 
-GEO_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, "geo"))
+GEO_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, "shared_geo"))
 
 fn.set_log_level(10)
 
@@ -95,3 +95,5 @@ plt.plot(yv, uv)
 
 plt.figure()
 plt.plot(yv, uev)
+
+print("done")

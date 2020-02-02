@@ -1,0 +1,7 @@
+{
+    "include": [
+        "examples",
+        "tests",
+        "shared_pkgs/fenics_utils"
+    ]
+}

@@ -1,0 +1,11 @@
+version: "3.7"
+services:
+  mixed_dim:
+    build: .
+    working_dir: /home/fenics/mixed_dim
+    volumes: 
+      - ../pkgs:/home/fenics/mixed_dim/shared_pkgs
+      - ../geo:/home/fenics/mixed_dim/shared_geo
+      - .:/home/fenics/mixed_dim
+    stdin_open: true
+    tty: true

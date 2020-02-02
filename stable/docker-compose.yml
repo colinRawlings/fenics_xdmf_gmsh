@@ -1,0 +1,11 @@
+version: "3.7"
+services:
+  stable:
+    build: .
+    working_dir: /home/fenics/stable
+    volumes: 
+      - ../pkgs:/home/fenics/stable/shared_pkgs
+      - ../geo:/home/fenics/stable/shared_geo
+      - .:/home/fenics/stable
+    stdin_open: true
+    tty: true
