@@ -8,7 +8,7 @@ seems broken in the MeshView dev container.
 
 run as:
 
-mpirun -np 4 /usr/bin/python3 /workspaces/fenics_xdmf_gmsh/simple/parallel_3d_calc.py
+mpirun -np 4 /usr/bin/python3 <this_file>.py
 
 """
 
