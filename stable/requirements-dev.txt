@@ -1,3 +1,4 @@
+wheel
 jupyter
 flake8
 yapf 
@@ -5,3 +6,5 @@ jedi
 rope 
 pytest==5.3.2
 six==1.13.0
+matplotlib
+numpy

@@ -2,6 +2,6 @@
     "include": [
         "examples",
         "tests",
-        "packages/fenics_utils"
+        "shared_pkgs/fenics_utils"
     ]
 }

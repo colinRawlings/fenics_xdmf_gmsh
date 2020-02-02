@@ -1,4 +1,4 @@
-# fenics_xdmf_gmsh
+# fenics_mixed_dim
 
 ## Overview
 

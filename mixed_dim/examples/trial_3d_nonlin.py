@@ -16,16 +16,16 @@ import fenics_utils as fu
 # Definitions
 ###########################################################
 
-GEO_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, "geo"))
+GEO_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, "shared_geo"))
 
 ###########################################################
 # Main
 ###########################################################
 
-# Load Mesh
+# Load mesh
 
-msh_filepath = os.path.join(GEO_DIR, "circle_square_center_pt.geo")
-labelled_mesh = fu.convert_2d_gmsh_geo_to_fenics_mesh(msh_filepath, do_plots=False)
+msh_filepath = os.path.join(GEO_DIR, "sph_sph_center_pt.geo")
+labelled_mesh = fu.convert_3d_gmsh_geo_to_fenics_mesh(msh_filepath)
 
 labelled_mesh1 = fu.create_mesh_view(labelled_mesh)
 labelled_mesh2 = fu.create_mesh_view(labelled_mesh, 2)
@@ -42,10 +42,18 @@ plt.figure()
 fn.plot(labelled_mesh2.mesh, title="mesh2")
 plt.show()
 
-# Spaces
+#
 
-W1 = fn.FunctionSpace(labelled_mesh1.mesh, "CG", 2)
-W2 = fn.FunctionSpace(labelled_mesh2.mesh, "CG", 2)
+file_u1 = fn.File("mf1.pvd")
+file_u1 << labelled_mesh1.subdomain_mesh_func
+
+file_u2 = fn.File("mf2.pvd")
+file_u2 << labelled_mesh2.subdomain_mesh_func
+
+# Define Spaces
+
+W1 = fn.FunctionSpace(labelled_mesh1.mesh, "Lagrange", 2)
+W2 = fn.FunctionSpace(labelled_mesh2.mesh, "Lagrange", 2)
 
 W = fn.MixedFunctionSpace(W1, W2)
 
@@ -54,6 +62,7 @@ W = fn.MixedFunctionSpace(W1, W2)
 bc1 = fn.DirichletBC(W1, fn.Constant(0), fu.IsBoundary())
 bc2 = fn.DirichletBC(W2, fn.Constant(0), fu.IsBoundary())
 bcs = [bc1, bc2]
+
 
 # Define PDE
 
@@ -64,10 +73,13 @@ u2 = u.sub(1)
 
 dx1 = fn.Measure("dx",
                  domain=W.sub_space(0).mesh(),
-                 subdomain_data=labelled_mesh1.subdomain_mesh_func)
+                 subdomain_data=labelled_mesh1.subdomain_mesh_func,
+                 metadata={'quadrature_degree': 4})
+
 dx2 = fn.Measure("dx",
                  domain=W.sub_space(1).mesh(),
-                 subdomain_data=labelled_mesh2.subdomain_mesh_func)
+                 subdomain_data=labelled_mesh2.subdomain_mesh_func,
+                 metadata={'quadrature_degree': 4})
 
 f1 = x1[0] * fn.sin(x1[1])  # type: ignore
 f2 = x2[0] * fn.sin(x2[1])  # type: ignore
@@ -91,3 +103,11 @@ plt.colorbar(p)
 plt.figure()
 p = fn.plot(u2, title="u2")
 plt.colorbar(p)
+
+#
+
+file_u1 = fn.File("u1.pvd")
+file_u1 << u1
+
+file_u2 = fn.File("u2.pvd")
+file_u2 << u2
