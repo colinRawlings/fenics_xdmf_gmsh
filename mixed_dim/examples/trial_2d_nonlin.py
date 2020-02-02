@@ -25,7 +25,7 @@ GEO_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, "sh
 # Load Mesh
 
 geo_filepath = os.path.join(GEO_DIR, "circle_square_center_pt.geo")
-labelled_mesh = fu.convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath, do_plots=False)
+labelled_mesh = fu.convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath, do_plots=False, geo_params={"radius": 1})
 
 labelled_mesh1 = fu.create_mesh_view(labelled_mesh)
 labelled_mesh2 = fu.create_mesh_view(labelled_mesh, 2)

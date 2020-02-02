@@ -17,7 +17,7 @@ import sys
 # Defintions
 ###########################################################
 
-EXAMPLE_SCRIPTS = glob.glob(os.path.join(os.path.dirname(__file__), os.pardir, "examples", "*.py"))
+EXAMPLE_SCRIPTS = glob.glob(os.path.join(os.path.dirname(__file__), os.pardir, "examples", "trial*.py"))
 
 
 ###########################################################

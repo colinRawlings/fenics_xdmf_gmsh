@@ -505,8 +505,7 @@ def newton_solver_parameters():
     return {
         "nonlinear_solver": "newton",
         "newton_solver": {
-            "linear_solver": "petsc",
-            "relative_tolerance": 1e-2
+            "linear_solver": "gmres",
         }
     }
 

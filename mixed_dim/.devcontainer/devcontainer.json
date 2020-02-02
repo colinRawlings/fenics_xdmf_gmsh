@@ -40,6 +40,7 @@
         "bertrand-thierry.vscode-gmsh",
         "ms-pyright.pyright",
         "mhutchie.git-graph",
-        "ryuta46.multi-command"
+        "ryuta46.multi-command",
+        "eamodio.gitlens"
     ]
 }
