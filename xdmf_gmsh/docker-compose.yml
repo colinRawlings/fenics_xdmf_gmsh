@@ -4,7 +4,7 @@ services:
     build: .
     working_dir: /home/fenics/xdmf_gmsh
     volumes: 
-      - ../pkgs:/home/fenics/pkgs
+      - ../pkgs:/home/fenics/xdmf_gmsh/shared_pkgs
       - .:/home/fenics/xdmf_gmsh
     stdin_open: true
     tty: true

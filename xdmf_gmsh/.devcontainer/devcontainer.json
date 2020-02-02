@@ -24,11 +24,12 @@
         // uses the right one for terminals and tasks. For example, /bin/bash (or /bin/ash for Alpine).
         "terminal.integrated.shell.linux": null
     },
+    "workspaceFolder": "/home/fenics/xdmf_gmsh",
     // Use 'appPort' to create a container with published ports. If the port isn't working, be sure
     // your server accepts connections from all interfaces (0.0.0.0 or '*'), not just localhost.
     // "appPort": [],
     // Uncomment the next line to run commands after the container is created - for example installing git.
-    "postCreateCommand": "pip install -e /home/fenics/pkgs/fenics_utils",
+    "postCreateCommand": "pip install -e /home/fenics/xdmf_gmsh/shared_pkgs/fenics_utils",
     // Add the IDs of extensions you want installed when the container is created in the array below.
     "extensions": [
         "ms-python.python",
