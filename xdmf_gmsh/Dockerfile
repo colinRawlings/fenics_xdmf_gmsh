@@ -18,8 +18,8 @@ RUN pip install lxml
 RUN pip install --no-binary=h5py h5py
 
 RUN mkdir /home/fenics/pkgs
-COPY ./requirements-dev.txt /home/fenics/pkgs/requirements-dev.txt
-RUN pip install -r /home/fenics/pkgs/requirements-dev.txt
+COPY ./requirements-dev.txt /home/fenics/requirements-dev.txt
+RUN pip install -r /home/fenics/requirements-dev.txt
 
 RUN curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
 RUN apt-get install nodejs
@@ -33,3 +33,5 @@ RUN apt-get install -y python3-h5py
 RUN pip3 install pyvtk
 
 RUN pip3 install git+https://github.com/mikaem/fenicstools
+
+CMD [ "/bin/bash" ]
