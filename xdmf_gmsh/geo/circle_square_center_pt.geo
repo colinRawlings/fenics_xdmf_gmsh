@@ -1,18 +1,34 @@
+//
+
+If(!(Exists(radius)))
+	radius = DefineNumber[ 5, Name "radius" ];
+EndIf
+
+If(!(Exists(dx_inner_mesh)))
+	dx_inner_mesh = DefineNumber[ 0.05, Name "dx_inner_mesh" ];
+EndIf
+
+If(!(Exists(dx_outer_mesh)))
+	dx_outer_mesh = DefineNumber[ 0.1, Name "dx_outer_mesh" ];
+EndIf
+
+//
+
 SetFactory("OpenCASCADE");
 //+
-Point(1) = {0, 0, 0, 0.05};
+Point(1) = {0, 0, 0, dx_inner_mesh};
 //+
-Point(2) = {0, 0.5, 0, 0.05};
+Point(2) = {0, 0.5, 0, dx_inner_mesh};
 //+
-Point(3) = {0.5, 0.5, 0, 0.05};
+Point(3) = {0.5, 0.5, 0, dx_inner_mesh};
 //+
-Point(4) = {-0.5, 0.5, 0, 0.05};
+Point(4) = {-0.5, 0.5, 0, dx_inner_mesh};
 //+
-Point(5) = {-0.5, -0.5, 0, 0.05};
+Point(5) = {-0.5, -0.5, 0, dx_inner_mesh};
 //+
-Point(6) = {0.5, -0.5, 0, 0.05};
+Point(6) = {0.5, -0.5, 0, dx_inner_mesh};
 //+
-Point(7) = {0, -0.5, 0, 0.05};
+Point(7) = {0, -0.5, 0, dx_inner_mesh};
 
 
 //+
@@ -42,13 +58,13 @@ Plane Surface(2) = {2};
 //+
 
 //+
-Point(8) = {0, 1, 0, 0.05};
+Point(8) = {0, radius, 0, dx_outer_mesh};
 //+
-Point(9) = {1, 0, 0, 0.05};
+Point(9) = {radius, 0, 0, dx_outer_mesh};
 //+
-Point(10) = {0, -1, 0, 0.05};
+Point(10) = {0, -radius, 0, dx_outer_mesh};
 //+
-Point(11) = {-1, 0, 0, 0.05};
+Point(11) = {-radius, 0, 0, dx_outer_mesh};
 //+
 Circle(9) = {8, 1, 9};
 //+
@@ -69,8 +85,6 @@ Plane Surface(3) = {3};
 Curve Loop(4) = {9, 10, -14, 1, 2, 3, -13};
 //+
 Plane Surface(4) = {4};
-//+
-Characteristic Length {8, 9, 10, 11} = 0.2;
 //+
 Physical Curve("inner", 2) = {3, 2, 1, 6, 7, 8};
 //+

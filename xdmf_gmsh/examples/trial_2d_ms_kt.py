@@ -4,11 +4,12 @@
 # imports
 ###########################################################
 
-import dolfin as fn
 import os
 
 import numpy as np
 import matplotlib.pyplot as plt
+
+import dolfin as fn
 
 import fenics_utils as fu
 
@@ -33,8 +34,8 @@ def is_center_pt(x, on_boundary):
 
 # import mesh
 
-msh_filepath = os.path.join(GEO_DIR, "circle_square_center_pt.geo")
-labelled_mesh = fu.convert_2d_gmsh_geo_to_fenics_mesh(msh_filepath, do_plots=False)
+geo_filepath = os.path.join(GEO_DIR, "circle_square_center_pt.geo")
+labelled_mesh = fu.convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath, do_plots=False)
 
 # magnetic equation
 
