@@ -1,4 +1,4 @@
-FROM ceciledc/fenics_mixed_dimensional:latest 
+FROM ceciledc/fenics_mixed_dimensional:27-01-20 
 # one container older: v2019.1
 
 ARG vGMSH_VERSION=4.5.0

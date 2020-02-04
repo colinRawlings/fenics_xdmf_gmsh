@@ -48,12 +48,10 @@ class LabelledMesh():
 
             tmp_mf_filepath = os.path.join(str(temp_dir), "domain_mf.xdmf")
 
-            with fn.XDMFFile(fn.MPI.comm_world,
-                             tmp_mf_filepath) as tmp_file_out:
+            with fn.XDMFFile(fn.MPI.comm_world, tmp_mf_filepath) as tmp_file_out:
                 tmp_file_out.write(subdomain_mesh_func)
 
-            self._subdomain_mesh_func = fn.MeshFunction(
-                "size_t", self._mesh, self._mesh.geometric_dimension())
+            self._subdomain_mesh_func = fn.MeshFunction("size_t", self._mesh, self._mesh.geometric_dimension())
             with fn.XDMFFile(fn.MPI.comm_world, tmp_mf_filepath) as tmp_file_in:
                 tmp_file_in.read(self._subdomain_mesh_func)
 
@@ -70,13 +68,10 @@ class LabelledMesh():
 
             tmp_mf_filepath = os.path.join(str(temp_dir), "boundary_mf.xdmf")
 
-            with fn.XDMFFile(fn.MPI.comm_world,
-                             tmp_mf_filepath) as tmp_file_out:
+            with fn.XDMFFile(fn.MPI.comm_world, tmp_mf_filepath) as tmp_file_out:
                 tmp_file_out.write(boundary_mesh_func)
 
-            self._boundary_mesh_func = fn.MeshFunction(
-                "size_t", self._mesh,
-                self._mesh.geometric_dimension() - 1)
+            self._boundary_mesh_func = fn.MeshFunction("size_t", self._mesh, self._mesh.geometric_dimension() - 1)
             with fn.XDMFFile(fn.MPI.comm_world, tmp_mf_filepath) as tmp_file_in:
                 tmp_file_in.read(self._boundary_mesh_func)
 
@@ -159,8 +154,7 @@ def close_all_paraview() -> None:
 #############################################################################
 
 
-def convert_2d_gmsh_msh_to_fenics_mesh(msh_filepath: str,
-                                       do_plots=False) -> LabelledMesh:
+def convert_2d_gmsh_msh_to_fenics_mesh(msh_filepath: str, do_plots=False) -> LabelledMesh:
     """[convert_2d_gmsh_msh_to_fenics_mesh]
     
     Arguments:
@@ -177,19 +171,15 @@ def convert_2d_gmsh_msh_to_fenics_mesh(msh_filepath: str,
 
     with tempfile.TemporaryDirectory() as temp_dir:
 
-        tmp_domain_filepath = os.path.join(
-            os.path.join(str(temp_dir), "domains.xdmf"))
-        tmp_boundary_filepath = os.path.join(
-            os.path.join(str(temp_dir), "boundaries.xdmf"))
+        tmp_domain_filepath = os.path.join(os.path.join(str(temp_dir), "domains.xdmf"))
+        tmp_boundary_filepath = os.path.join(os.path.join(str(temp_dir), "boundaries.xdmf"))
 
         meshio_dom = meshio.Mesh(
             points=msh.points[:, :2],  # Converting to 2D
             cells={"triangle": msh.cells["triangle"]},
-            cell_data={
-                "triangle": {
-                    "subdomain": msh.cell_data["triangle"]["gmsh:physical"]
-                }
-            },
+            cell_data={"triangle": {
+                "subdomain": msh.cell_data["triangle"]["gmsh:physical"]
+            }},
             field_data=msh.field_data)
 
         meshio.write(tmp_domain_filepath, meshio_dom)
@@ -199,11 +189,9 @@ def convert_2d_gmsh_msh_to_fenics_mesh(msh_filepath: str,
         meshio_bnd = meshio.Mesh(
             points=msh.points[:, :2],  # Converting to 2D
             cells={"line": msh.cells["line"]},
-            cell_data={
-                "line": {
-                    "boundaries": msh.cell_data["line"]["gmsh:physical"]
-                }
-            })
+            cell_data={"line": {
+                "boundaries": msh.cell_data["line"]["gmsh:physical"]
+            }})
 
         meshio.write(tmp_boundary_filepath, meshio_bnd)
 
@@ -224,8 +212,7 @@ def convert_2d_gmsh_msh_to_fenics_mesh(msh_filepath: str,
         #
 
         mvc_bnd = fn.MeshValueCollection("size_t", mesh, 1)
-        with fn.XDMFFile(fn.MPI.comm_world,
-                         tmp_boundary_filepath) as xdmf_infile:
+        with fn.XDMFFile(fn.MPI.comm_world, tmp_boundary_filepath) as xdmf_infile:
             xdmf_infile.read(mvc_bnd, "boundaries")
 
         mf_bnd = fn.MeshFunction("size_t", mesh, mvc_bnd)
@@ -238,9 +225,7 @@ def convert_2d_gmsh_msh_to_fenics_mesh(msh_filepath: str,
         plt.figure()
         c = fn.plot(mesh, title="mesh")
 
-    return LabelledMesh(mesh=mesh,
-                        subdomain_mesh_func=mf_dom,
-                        boundary_mesh_func=mf_bnd)
+    return LabelledMesh(mesh=mesh, subdomain_mesh_func=mf_dom, boundary_mesh_func=mf_bnd)
 
 
 #############################################################################
@@ -262,19 +247,15 @@ def convert_3d_gmsh_msh_to_fenics_mesh(msh_filepath: str) -> LabelledMesh:
 
     with tempfile.TemporaryDirectory() as temp_dir:
 
-        tmp_domain_filepath = os.path.join(
-            os.path.join(str(temp_dir), "domains.xdmf"))
-        tmp_boundary_filepath = os.path.join(
-            os.path.join(str(temp_dir), "boundaries.xdmf"))
+        tmp_domain_filepath = os.path.join(os.path.join(str(temp_dir), "domains.xdmf"))
+        tmp_boundary_filepath = os.path.join(os.path.join(str(temp_dir), "boundaries.xdmf"))
 
         meshio_dom = meshio.Mesh(
             points=msh.points,  # Converting to 2D
             cells={"tetra": msh.cells["tetra"]},
-            cell_data={
-                "tetra": {
-                    "subdomain": msh.cell_data["tetra"]["gmsh:physical"]
-                }
-            },
+            cell_data={"tetra": {
+                "subdomain": msh.cell_data["tetra"]["gmsh:physical"]
+            }},
             field_data=msh.field_data)
 
         meshio.write(tmp_domain_filepath, meshio_dom)
@@ -284,11 +265,9 @@ def convert_3d_gmsh_msh_to_fenics_mesh(msh_filepath: str) -> LabelledMesh:
         meshio_bnd = meshio.Mesh(
             points=msh.points,  # Converting to 2D
             cells={"triangle": msh.cells["triangle"]},
-            cell_data={
-                "triangle": {
-                    "boundaries": msh.cell_data["triangle"]["gmsh:physical"]
-                }
-            })
+            cell_data={"triangle": {
+                "boundaries": msh.cell_data["triangle"]["gmsh:physical"]
+            }})
 
         meshio.write(tmp_boundary_filepath, meshio_bnd)
 
@@ -309,22 +288,18 @@ def convert_3d_gmsh_msh_to_fenics_mesh(msh_filepath: str) -> LabelledMesh:
         #
 
         mvc_bnd = fn.MeshValueCollection("size_t", mesh, 1)
-        with fn.XDMFFile(fn.MPI.comm_world,
-                         tmp_boundary_filepath) as xdmf_infile:
+        with fn.XDMFFile(fn.MPI.comm_world, tmp_boundary_filepath) as xdmf_infile:
             xdmf_infile.read(mvc_bnd, "boundaries")
 
         mf_bnd = fn.MeshFunction("size_t", mesh, mvc_bnd)
 
-    return LabelledMesh(mesh=mesh,
-                        subdomain_mesh_func=mf_dom,
-                        boundary_mesh_func=mf_bnd)
+    return LabelledMesh(mesh=mesh, subdomain_mesh_func=mf_dom, boundary_mesh_func=mf_bnd)
 
 
 #############################################################################
 
 
-def _check_mesh_conversion_result(result: sp.CompletedProcess,
-                                  tmp_msh_filepath: str) -> None:
+def _check_mesh_conversion_result(result: sp.CompletedProcess, tmp_msh_filepath: str) -> None:
     """Check the result of running gmsh to create a msh file from a geo file
 
         n.b. gmsh does not give an non-zero exit code on meshing failure)
@@ -349,8 +324,7 @@ def _check_mesh_conversion_result(result: sp.CompletedProcess,
 #############################################################################
 
 
-def _construct_param_args(
-        geo_params: ty.Optional[ty.Dict["str", float]]) -> ty.List[str]:
+def _construct_param_args(geo_params: ty.Optional[ty.Dict["str", float]]) -> ty.List[str]:
     """convert the params in the supplied dict into the corresponding
     command line args for gmsh
     
@@ -376,8 +350,7 @@ def _construct_param_args(
 
 
 def convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath: str,
-                                       geo_params: ty.Optional[ty.Dict[
-                                           "str", float]] = None,
+                                       geo_params: ty.Optional[ty.Dict["str", float]] = None,
                                        do_plots: bool = False) -> LabelledMesh:
     """[convert_2d_gmsh_geo_to_fenics_mesh]
     
@@ -394,15 +367,13 @@ def convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath: str,
         tmp_msh_filepath = os.path.join(str(temp_dir), "tmp_msh.msh")
 
         param_args = _construct_param_args(geo_params)
-        cmd_list = ["gmsh", "-2"
-                    ] + param_args + ["-o", tmp_msh_filepath, geo_filepath]
+        cmd_list = ["gmsh", "-2"] + param_args + ["-o", tmp_msh_filepath, geo_filepath]
 
         result = sp.run(cmd_list, stdout=sp.PIPE, stderr=sp.PIPE)
 
         _check_mesh_conversion_result(result, tmp_msh_filepath)
 
-        mesh_data = convert_2d_gmsh_msh_to_fenics_mesh(tmp_msh_filepath,
-                                                       do_plots=do_plots)
+        mesh_data = convert_2d_gmsh_msh_to_fenics_mesh(tmp_msh_filepath, do_plots=do_plots)
 
     return mesh_data
 
@@ -410,9 +381,8 @@ def convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath: str,
 #############################################################################
 
 
-def convert_3d_gmsh_geo_to_fenics_mesh(
-        geo_filepath: str,
-        geo_params: ty.Optional[ty.Dict["str", float]] = None) -> LabelledMesh:
+def convert_3d_gmsh_geo_to_fenics_mesh(geo_filepath: str,
+                                       geo_params: ty.Optional[ty.Dict["str", float]] = None) -> LabelledMesh:
     """[convert_3d_gmsh_geo_to_fenics_mesh]
     
     Arguments:
@@ -428,8 +398,7 @@ def convert_3d_gmsh_geo_to_fenics_mesh(
         tmp_msh_filepath = os.path.join(str(temp_dir), "tmp_msh.msh")
 
         param_args = _construct_param_args(geo_params)
-        cmd_list = ["gmsh", "-3"
-                    ] + param_args + ["-o", tmp_msh_filepath, geo_filepath]
+        cmd_list = ["gmsh", "-3"] + param_args + ["-o", tmp_msh_filepath, geo_filepath]
 
         result = sp.run(cmd_list, stdout=sp.PIPE, stderr=sp.PIPE)
 
@@ -443,8 +412,7 @@ def convert_3d_gmsh_geo_to_fenics_mesh(
 #############################################################################
 
 
-def create_mesh_view(labelled_mesh: LabelledMesh,
-                     domain_index: ty.Optional[int] = None) -> LabelledMesh:
+def create_mesh_view(labelled_mesh: LabelledMesh, domain_index: ty.Optional[int] = None) -> LabelledMesh:
     """[summary]
     
     Arguments:
@@ -457,39 +425,33 @@ def create_mesh_view(labelled_mesh: LabelledMesh,
 
     if domain_index is None:
         marker = fn.MeshFunction("size_t", labelled_mesh.mesh,
-                                 labelled_mesh.mesh.topology().dim(),
-                                 0)  # mark entirety of the full mesh
+                                 labelled_mesh.mesh.topology().dim(), 0)  # mark entirety of the full mesh
         mesh_view = fn.MeshView.create(marker, 0)
     else:
-        mesh_view = fn.MeshView.create(labelled_mesh.subdomain_mesh_func,
-                                       domain_index)
+        mesh_view = fn.MeshView.create(labelled_mesh.subdomain_mesh_func, domain_index)
 
     # make expression for original mesh
 
     V = fn.FunctionSpace(labelled_mesh.mesh, "DG", 0)
     u_smf = fn.Function(V)
 
-    helper = np.asarray(labelled_mesh.subdomain_mesh_func.array(),
-                        dtype=np.int32)  # type: ignore
+    helper = np.asarray(labelled_mesh.subdomain_mesh_func.array(), dtype=np.int32)  # type: ignore
 
     dm = V.dofmap()
     for cell in fn.cells(labelled_mesh.mesh):
-        helper[dm.cell_dofs(cell.index())] = labelled_mesh.subdomain_mesh_func[
-            cell]  # type: ignore
+        helper[dm.cell_dofs(cell.index())] = labelled_mesh.subdomain_mesh_func[cell]  # type: ignore
 
     u_smf.vector()[:] = helper
 
     # evaluate on mesh view
 
-    view_smf = fn.MeshFunction("size_t", mesh_view,
-                               mesh_view.topology().dim(), 0)
+    view_smf = fn.MeshFunction("size_t", mesh_view, mesh_view.topology().dim(), 0)
     for c in fn.cells(mesh_view):
 
         if mesh_view.topology().dim() == 2:
             cell_midpoint = (c.midpoint().x(), c.midpoint().y())
         elif mesh_view.topology().dim() == 3:
-            cell_midpoint = (c.midpoint().x(), c.midpoint().y(),
-                             c.midpoint().z())
+            cell_midpoint = (c.midpoint().x(), c.midpoint().y(), c.midpoint().z())
         else:
             assert False, "Unexpected condition"
 
@@ -500,14 +462,22 @@ def create_mesh_view(labelled_mesh: LabelledMesh,
 
 #############################################################################
 
+# Preconditioner   |  Description                               
+# --------------------------------------------------------------
+# amg              |  Algebraic multigrid                       
+# default          |  default preconditioner                    
+# hypre_amg        |  Hypre algebraic multigrid (BoomerAMG)     
+# hypre_euclid     |  Hypre parallel incomplete LU factorization
+# hypre_parasails  |  Hypre parallel sparse approximate inverse 
+# icc              |  Incomplete Cholesky factorization         
+# ilu              |  Incomplete LU factorization               
+# jacobi           |  Jacobi iteration                          
+# none             |  No preconditioner                         
+# petsc_amg        |  PETSc algebraic multigrid                 
+# sor              |  Successive over-relaxation         
 
 def newton_solver_parameters():
-    return {
-        "nonlinear_solver": "newton",
-        "newton_solver": {
-            "linear_solver": "gmres",
-        }
-    }
+    return {"nonlinear_solver": "newton", "newton_solver": {"linear_solver": "lu"}}
 
 
 #############################################################################
@@ -593,8 +563,7 @@ def save_function(u, function_filepath=None, open_file=False):
     import dolfin as fn
 
     if function_filepath is None:
-        function_filepath = os.path.join(PARAVIEW_TMP_FOLDERPATH,
-                                         "function.pvd")
+        function_filepath = os.path.join(PARAVIEW_TMP_FOLDERPATH, "function.pvd")
 
     function_filepath = os.path.abspath(function_filepath)
 

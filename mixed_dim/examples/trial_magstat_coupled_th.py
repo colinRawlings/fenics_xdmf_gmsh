@@ -96,7 +96,7 @@ DM_th = fn.as_vector((fn.Constant(-1)*fn.sin(u_th), fn.cos(u_th)))
 F_phi = fn.inner(fn.grad(u_phi), fn.grad(v_phi)) * dx1
 F_phi += fn.inner(M, fn.grad(v_phi)) * dx1(2)
 
-F_th = fn.Constant(0.0005)*fn.inner(fn.grad(u_th), fn.grad(v_th)) * dx2
+F_th = fn.Constant(0.01)*fn.inner(fn.grad(u_th), fn.grad(v_th)) * dx2
 F_th += fn.Constant(-1) * fn.inner(DM_th, fn.grad(u_phi)) * v_th * dx2
 
 F = F_phi + F_th
