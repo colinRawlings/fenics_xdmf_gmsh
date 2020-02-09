@@ -29,5 +29,5 @@ print(
 log(comm, f"size: {fn.MPI.size(comm)}")
 
 # try to use mpi barrier
-
+#
 # try to comm.bcast (a shared folder)
