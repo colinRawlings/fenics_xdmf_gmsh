@@ -3,9 +3,7 @@ FROM quay.io/fenicsproject/stable:2019.1.0.r3
 ARG vGMSH_VERSION=4.5.0
 ARG vPYRIGHT_VERSION=1.1.19
 
-RUN apt-get update
-
-RUN apt-get install -y libgfortran3 libglu1-mesa libxcursor1 libxinerama1
+RUN apt-get update && apt-get install -y libgfortran3 libglu1-mesa libxcursor1 libxinerama1
 RUN mkdir /home/fenics/apps/
 RUN curl -o /home/fenics/apps/gmsh.tgz http://gmsh.info/bin/Linux/gmsh-${vGMSH_VERSION}-Linux64-sdk.tgz
 RUN cd /home/fenics/apps && tar -xvzf /home/fenics/apps/gmsh.tgz
