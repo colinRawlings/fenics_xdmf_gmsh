@@ -2,9 +2,8 @@
 """
 Here:
 
-- use the stable container since parallel execution
-seems broken in the MeshView dev container.
-- use fenicstools to evaluate solutions for parallel executions
+- trial using fenicstools to access solution values for a
+  parallellised calculation
 
 run as:
 
@@ -17,19 +16,11 @@ mpirun -np 4 /usr/bin/python3 <this_file>.py
 ###########################################################
 
 import dolfin as fn
-
-import fenicstools as ft
 import numpy as np
 
-###########################################################
-# Classes
-###########################################################
+import fenicstools as ft
 
-
-class IsBoundary(fn.SubDomain):
-    def inside(self, x, on_boundary):
-        return on_boundary
-
+import fenics_utils as fu
 
 ###########################################################
 # Main
@@ -50,7 +41,7 @@ L = fn.Constant(1) * v * fn.dx
 # construct for anl solution
 x = fn.SpatialCoordinate(mesh)
 anl_soln = fn.Constant(1 / 6) * (x[0]**2 + x[1]**2 + x[2]**2)  # type: ignore
-bc = fn.DirichletBC(V, anl_soln, IsBoundary())
+bc = fn.DirichletBC(V, anl_soln, fu.IsBoundary())
 
 #
 
@@ -60,7 +51,7 @@ print(
 u = fn.Function(V)
 fn.solve(a == L, u, bc)
 
-# post pro
+# post pro:
 
 u_anl = fn.project(anl_soln, V)
 

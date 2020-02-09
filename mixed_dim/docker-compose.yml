@@ -4,8 +4,7 @@ services:
     build: .
     working_dir: /home/fenics/mixed_dim
     volumes: 
-      - ../pkgs:/home/fenics/mixed_dim/shared_pkgs
-      - ../geo:/home/fenics/mixed_dim/shared_geo
       - .:/home/fenics/mixed_dim
+      - ../shared:/home/fenics/mixed_dim/shared
     stdin_open: true
     tty: true

@@ -1,12 +1,11 @@
 FROM ceciledc/fenics_mixed_dimensional:27-01-20 
-# one container older: v2019.1
 
 ARG vGMSH_VERSION=4.5.0
 ARG vPYRIGHT_VERSION=1.1.19
 
 RUN apt-get update
 
-RUN apt-get install -y gmsh libgfortran3
+RUN apt-get install -y libgfortran3 libglu1-mesa libxcursor1 libxinerama1
 RUN mkdir /home/fenics/apps/
 RUN curl -o /home/fenics/apps/gmsh.tgz http://gmsh.info/bin/Linux/gmsh-${vGMSH_VERSION}-Linux64-sdk.tgz
 RUN cd /home/fenics/apps && tar -xvzf /home/fenics/apps/gmsh.tgz
@@ -33,5 +32,9 @@ RUN apt-get install -y python3-h5py
 RUN pip3 install pyvtk
 
 RUN pip3 install git+https://github.com/mikaem/fenicstools
+
+# (trigger import to get fenicstools to do its compilation)
+RUN python3 -c "import fenicstools"
+
 
 CMD [ "/bin/bash" ]

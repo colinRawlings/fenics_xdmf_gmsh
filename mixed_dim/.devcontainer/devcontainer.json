@@ -29,7 +29,7 @@
     // your server accepts connections from all interfaces (0.0.0.0 or '*'), not just localhost.
     // "appPort": [],
     // Uncomment the next line to run commands after the container is created - for example installing git.
-    "postCreateCommand": "pip install -e /home/fenics/mixed_dim/shared_pkgs/fenics_utils",
+    "postCreateCommand": "pip install -e /home/fenics/mixed_dim/shared/pkgs/fenics_utils",
     // Add the IDs of extensions you want installed when the container is created in the array below.
     "extensions": [
         "ms-python.python",
@@ -41,6 +41,7 @@
         "ms-pyright.pyright",
         "mhutchie.git-graph",
         "ryuta46.multi-command",
-        "eamodio.gitlens"
+        "eamodio.gitlens",
+        "mutantdino.resourcemonitor"
     ]
 }
