@@ -17,7 +17,7 @@ import fenics_utils as fu
 # Definitions
 ###########################################################
 
-GEO_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, "shared_geo"))
+GEO_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, "shared", "geo"))
 
 ###########################################################
 # Functions

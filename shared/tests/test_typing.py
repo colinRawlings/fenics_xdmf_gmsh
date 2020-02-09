@@ -14,7 +14,7 @@ import subprocess as sp
 
 def test_typing_with_pyright():
 
-    config_filepath = os.path.join(os.path.dirname(__file__), os.pardir, "pyrightconfig.json")
+    config_filepath = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "pyrightconfig.json")
     assert os.path.isfile(config_filepath), f"No pyright config found: {config_filepath}"
 
     result = sp.run(["which", "pyright"])
