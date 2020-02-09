@@ -16,13 +16,9 @@ import fenics_utils as fu
 # Definitions
 ###########################################################
 
-GEO_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), os.pardir, "shared_geo"))
+GEO_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, "shared_geo"))
 
-invA = 0.01
-
-fn.parameters["krylov_solver"]["relative_tolerance"] = 1e-2
-fn.parameters["krylov_solver"]["absolute_tolerance"] = 1e-2
+invA = 0.1
 
 ###########################################################
 # Functions
@@ -30,8 +26,7 @@ fn.parameters["krylov_solver"]["absolute_tolerance"] = 1e-2
 
 
 def is_center_pt(x, on_boundary):
-    condition = (abs(x[0] - 0.0) < 10 * fn.DOLFIN_EPS
-                 and abs(x[1] - 0.0) < 10 * fn.DOLFIN_EPS)  # type: ignore
+    condition = (abs(x[0] - 0.0) < 10 * fn.DOLFIN_EPS and abs(x[1] - 0.0) < 10 * fn.DOLFIN_EPS)  # type: ignore
     return condition
 
 
@@ -86,40 +81,50 @@ u_Mx = u.sub(1)
 u_My = u.sub(2)
 u_l = u.sub(3)
 
+x = fn.SpatialCoordinate(labelled_mesh2.mesh)
+r = fn.sqrt(x[0] * x[0] + x[1] * x[1])
+
+M = fn.as_vector((u_Mx, u_My))
+
+plt.figure()
+fn.plot(M)
+plt.show()
+
 u_Mx.interpolate(fn.Constant(0.707))
 u_My.interpolate(fn.Constant(0.707))
 u_l.interpolate(fn.Constant(0.01))
 
-dx1 = fn.Measure("dx",
-                 domain=W.sub_space(0).mesh(),
-                 subdomain_data=labelled_mesh1.subdomain_mesh_func)
-dx2 = fn.Measure("dx",
-                 domain=W.sub_space(1).mesh(),
-                 subdomain_data=labelled_mesh2.subdomain_mesh_func)
-
-M = fn.as_vector((u_Mx, u_My))
+dx1 = fn.Measure("dx", domain=W.sub_space(0).mesh(), subdomain_data=labelled_mesh1.subdomain_mesh_func)
+dx2 = fn.Measure("dx", domain=W.sub_space(1).mesh(), subdomain_data=labelled_mesh2.subdomain_mesh_func)
 
 F0 = fn.inner(fn.grad(u_phi), fn.grad(v_phi)) * dx1
 F0 += fn.inner(M, fn.grad(v_phi)) * dx1(2)
 
 F1 = fn.Constant(invA) * fn.inner(fn.grad(u_Mx), fn.grad(v_Mx)) * dx2
-F1 += fn.Constant(-1) * fn.Dx(
-    u_phi, 0) * v_Mx * dx2 - u_l * u_Mx * v_Mx * dx2  # type: ignore
+F1 += fn.Constant(-1) * fn.Dx(u_phi, 0) * v_Mx * dx2 - u_l * u_Mx * v_Mx * dx2  # type: ignore
 
 F2 = fn.Constant(invA) * fn.inner(fn.grad(u_My), fn.grad(v_My)) * dx2
-F2 += fn.Constant(-1) * fn.Dx(
-    u_phi, 1) * v_My * dx2 - u_l * u_My * v_My * dx2  # type: ignore
+F2 += fn.Constant(-1) * fn.Dx(u_phi, 1) * v_My * dx2 - u_l * u_My * v_My * dx2  # type: ignore
 
-F3 = + v_l * (u_Mx * u_Mx + u_My * u_My - 1.0) * dx2  # type: ignore
+F3 = +v_l * (u_Mx * u_Mx + u_My * u_My - 1.0) * dx2  # type: ignore
 
 F = F0 + F1 + F2 + F3
 
 # Compute Solution
 
 try:
-    fn.solve(F == 0, u, bcs, solver_parameters=fu.newton_solver_parameters())
+    fn.solve(F == 0,
+             u,
+             bcs,
+             solver_parameters={
+                 "nonlinear_solver": "newton",
+                 "newton_solver": {
+                     "linear_solver": "umfpack",
+                     "relaxation_parameter": 1.0
+                 }
+             })
 except RuntimeError as e:
-    print(repr(e))
+    print(e)
 
 # Plot Solution
 
