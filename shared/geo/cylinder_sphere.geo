@@ -9,8 +9,8 @@ If(!(Exists(cylinder_height)))
     cylinder_height = DefineNumber[ 0.5, Name "cylinder_height" ];
 EndIf
 //+
-If(!(Exists(outer_radius)))
-    outer_radius = DefineNumber[ 2, Name "outer_radius" ];
+If(!(Exists(sphere_radius)))
+    sphere_radius = DefineNumber[ 2, Name "sphere_radius" ];
 EndIf
 //+
 If(!(Exists(dx_mesh_outer)))
