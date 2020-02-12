@@ -21,7 +21,7 @@ import fenics_utils as fu
 ###############################################################
 
 GEO_FILEPATH = os.path.join(os.path.dirname(__file__), os.pardir, "geo",
-                        "cylinder_sphere.geo")
+                            "circle_square_center_pt.geo")
 assert os.path.isfile(GEO_FILEPATH)
 
 ###############################################################
@@ -37,12 +37,16 @@ def log(comm: fn.MPI.comm_world, msg: str) -> None:
 # Main
 ###############################################################
 
+print(
+    f"mpi process: rank: {fn.MPI.rank(fn.MPI.comm_world)}, size: {fn.MPI.size(fn.MPI.comm_world)}")
+
+
 comm = fn.MPI.comm_world
 rank = fn.MPI.rank(comm)
 
 geo_params = {}
 
-lbl_mesh = fu.convert_3d_gmsh_geo_to_fenics_mesh(GEO_FILEPATH)
+lbl_mesh = fu.convert_2d_gmsh_geo_to_fenics_mesh(GEO_FILEPATH)
 
 #
 # Solve
@@ -60,5 +64,5 @@ F += fn.Constant(1) * v * dx_mf(2)
 
 fn.solve(F == 0, u, bc)
 
-file = fn.File(comm, "mpi_out.pvd")
+file = fn.File(comm, "mpi_out_2d.pvd")
 file << u

@@ -139,6 +139,7 @@ def convert_3d_gmsh_geo_to_fenics_mesh(
 
     tmp_domain_filepath = None
     tmp_boundary_filepath = None
+    tmp_dir = None
 
     if rank == 0:
         tmp_dir = tempfile.TemporaryDirectory()
@@ -163,7 +164,7 @@ def convert_3d_gmsh_geo_to_fenics_mesh(
             os.path.join(tmp_dir.name, "boundaries.xdmf"))
 
         meshio_dom = meshio.Mesh(
-            points=msh.points,  # Converting to 2D
+            points=msh.points,
             cells={"tetra": msh.cells["tetra"]},
             cell_data={
                 "tetra": {
@@ -177,7 +178,7 @@ def convert_3d_gmsh_geo_to_fenics_mesh(
         #
 
         meshio_bnd = meshio.Mesh(
-            points=msh.points,  # Converting to 2D
+            points=msh.points,
             cells={"triangle": msh.cells["triangle"]},
             cell_data={
                 "triangle": {
@@ -437,10 +438,17 @@ def convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath: str,
         LabelledMesh
     """
 
-    assert os.path.isfile(geo_filepath), f"{geo_filepath} not found"
+    comm = fn.MPI.comm_world
+    rank = fn.MPI.rank(comm)
 
-    with tempfile.TemporaryDirectory() as temp_dir:
-        tmp_msh_filepath = os.path.join(str(temp_dir), "tmp_msh.msh")
+    tmp_domain_filepath = None
+    tmp_boundary_filepath = None
+    tmp_dir = None
+
+    if rank == 0:
+        tmp_dir = tempfile.TemporaryDirectory()
+
+        tmp_msh_filepath = os.path.join(str(tmp_dir.name), "tmp_msh.msh")
 
         param_args = _construct_param_args(geo_params)
         cmd_list = ["gmsh", "-2"
@@ -450,10 +458,69 @@ def convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath: str,
 
         _check_mesh_conversion_result(result, tmp_msh_filepath)
 
-        mesh_data = convert_2d_gmsh_msh_to_fenics_mesh(tmp_msh_filepath,
-                                                       do_plots=do_plots)
+        msh = meshio.read(tmp_msh_filepath)
 
-    return mesh_data
+        tmp_domain_filepath = os.path.join(
+            os.path.join(tmp_dir.name, "domains.xdmf"))
+        tmp_boundary_filepath = os.path.join(
+            os.path.join(tmp_dir.name, "boundaries.xdmf"))
+
+        meshio_dom = meshio.Mesh(
+            points=msh.points[:, :2],  # Converting to 2D
+            cells={"triangle": msh.cells["triangle"]},
+            cell_data={
+                "triangle": {
+                    "subdomain": msh.cell_data["triangle"]["gmsh:physical"]
+                }
+            },
+            field_data=msh.field_data)
+
+        meshio.write(tmp_domain_filepath, meshio_dom)
+
+        meshio_bnd = meshio.Mesh(
+            points=msh.points[:, :2],  # Converting to 2D
+            cells={"line": msh.cells["line"]},
+            cell_data={
+                "line": {
+                    "boundaries": msh.cell_data["line"]["gmsh:physical"]
+                }
+            })
+
+        meshio.write(tmp_boundary_filepath, meshio_bnd)
+
+    tmp_domain_filepath = comm.bcast(tmp_domain_filepath, root=0)
+    tmp_boundary_filepath = comm.bcast(tmp_boundary_filepath, root=0)
+
+    # Load into fenics
+
+    mesh = fn.Mesh()
+    with fn.XDMFFile(fn.MPI.comm_world, tmp_domain_filepath) as xdmf_infile:
+        xdmf_infile.read(mesh)
+
+    #
+
+    mvc_dom = fn.MeshValueCollection("size_t", mesh, 2)
+    with fn.XDMFFile(fn.MPI.comm_world, tmp_domain_filepath) as xdmf_infile:
+        xdmf_infile.read(mvc_dom, "subdomain")
+
+    mf_dom = fn.MeshFunction("size_t", mesh, mvc_dom)
+
+    #
+
+    mvc_bnd = fn.MeshValueCollection("size_t", mesh, 1)
+    with fn.XDMFFile(fn.MPI.comm_world,
+                        tmp_boundary_filepath) as xdmf_infile:
+        xdmf_infile.read(mvc_bnd, "boundaries")
+
+    mf_bnd = fn.MeshFunction("size_t", mesh, mvc_bnd)
+
+    if rank == 0:
+        tmp_dir.cleanup()
+
+    return LabelledMesh(mesh=mesh,
+                    subdomain_mesh_func=mf_dom,
+                    boundary_mesh_func=mf_bnd)
+
 
 
 #############################################################################
