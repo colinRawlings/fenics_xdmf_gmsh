@@ -8,21 +8,30 @@ import sys
 import os
 import subprocess as sp
 import re
+import glob
 
-from numpy.core.fromnumeric import size
+import pytest
+
+###########################################################
+# Defintions
+###########################################################
+
+SHARED_EXAMPLE_SCRIPTS_DIR = os.path.join(os.path.dirname(__file__), os.pardir, "examples")
+
 
 ###########################################################
 # Tests
 ###########################################################
 
 
-def test_parallel_execution_with_mpi():
+@pytest.mark.parametrize('script', glob.glob(os.path.join(SHARED_EXAMPLE_SCRIPTS_DIR, "parallel*.py")))
+def test_parallel_execution_with_mpi(script):
 
     NUM_THREADS = 2
 
     parallel_calc_script_filepath = os.path.join(os.path.dirname(__file__),
                                                  os.pardir, "examples",
-                                                 "parallel_3d_calc.py")
+                                                 script)
 
     assert os.path.isfile(parallel_calc_script_filepath)
 
