@@ -113,36 +113,46 @@ F = F0 + F1 + F2 + F3
 
 # Compute Solution
 
-try:
-    fn.solve(F == 0,
-             u,
-             bcs,
-             solver_parameters={
-                 "nonlinear_solver": "newton",
-                 "newton_solver": {
-                     "linear_solver": "umfpack",
-                     "relaxation_parameter": 1.0
-                 }
-             })
-except RuntimeError as e:
-    print(e)
+fn.solve(F == 0,
+            u,
+            bcs,
+            solver_parameters={
+                "nonlinear_solver": "newton",
+                "newton_solver": {
+                    "linear_solver": "superlu",
+                    "relaxation_parameter": 1.0
+                }
+            })
+
 
 # Plot Solution
 
-plt.figure()
-p = fn.plot(u_phi, title="u_phi")
-plt.colorbar(p)
+# plt.figure()
+# p = fn.plot(u_phi, title="u_phi")
+# plt.colorbar(p)
 
-plt.figure()
-p = fn.plot(u_My, title="u_My")
-plt.colorbar(p)
+# plt.figure()
+# p = fn.plot(u_My, title="u_My")
+# plt.colorbar(p)
 
-fn.plot(M)
+# fn.plot(M)
 
-plt.figure()
-p = fn.plot(u_l, title="l")
-plt.colorbar(p)
+# plt.figure()
+# p = fn.plot(u_l, title="l")
+# plt.colorbar(p)
 
-plt.figure()
-p = fn.plot(u_Mx * u_Mx + u_My * u_My, title="!M!2")
-plt.colorbar(p)
+# plt.figure()
+# p = fn.plot(u_Mx * u_Mx + u_My * u_My, title="!M!2")
+# plt.colorbar(p)
+
+
+comm = fn.MPI.comm_world
+
+file = fn.File(comm, "ms_genlin_Mx.pvd")
+file << u_Mx
+
+file = fn.File(comm, "ms_genlin_My.pvd")
+file << u_My
+
+file = fn.File(comm, "ms_genlin_u_phi.pvd")
+file << u_phi
