@@ -5,14 +5,9 @@
 ###############################################################
 
 import os
-from time import sleep
 from datetime import datetime
-import tempfile as tmp
-import subprocess as sp
-import shutil
 
 import dolfin as fn
-import meshio
 
 import fenics_utils as fu
 

@@ -1,15 +1,15 @@
 //
 
 If(!(Exists(radius)))
-	radius = DefineNumber[ 5, Name "radius" ];
+	radius = DefineNumber[ 1.5, Name "radius" ];
 EndIf
 
 If(!(Exists(dx_inner_mesh)))
-	dx_inner_mesh = DefineNumber[ 0.05, Name "dx_inner_mesh" ];
+	dx_inner_mesh = DefineNumber[ 0.2, Name "dx_inner_mesh" ];
 EndIf
 
 If(!(Exists(dx_outer_mesh)))
-	dx_outer_mesh = DefineNumber[ 0.1, Name "dx_outer_mesh" ];
+	dx_outer_mesh = DefineNumber[ 0.4, Name "dx_outer_mesh" ];
 EndIf
 
 //

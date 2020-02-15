@@ -5,9 +5,14 @@
 ###############################################################
 
 import os
+from time import sleep
 from datetime import datetime
+import tempfile as tmp
+import subprocess as sp
 
 import dolfin as fn
+import matplotlib.pyplot as plt
+
 
 import fenics_utils as fu
 
@@ -43,21 +48,11 @@ geo_params = {}
 
 lbl_mesh = fu.convert_2d_gmsh_geo_to_fenics_mesh(GEO_FILEPATH)
 
-#
-# Solve
-#
+plt.figure()
+fn.plot(lbl_mesh.subdomain_mesh_func)
+plt.show()
 
-V = fn.FunctionSpace(lbl_mesh.mesh, "CG", 2)
-u = fn.Function(V)
-v = fn.TrialFunction(V)
+lbl_meshview = fu.create_mesh_view(lbl_mesh)
 
-dx_mf = fn.dx(subdomain_data=lbl_mesh.subdomain_mesh_func)
-bc = fn.DirichletBC(V, fn.Constant(0), lbl_mesh.boundary_mesh_func, 1)
-
-F = fn.inner(fn.grad(u), fn.grad(v)) * fn.dx
-F += fn.Constant(1) * v * dx_mf(2)
-
-fn.solve(F == 0, u, bc)
-
-file = fn.File(comm, "mpi_out_2d.pvd")
-file << u
+file = fn.File(comm, "mpi_meshview_out_2d.pvd")
+file << lbl_meshview.subdomain_mesh_func
