@@ -104,7 +104,13 @@ F = F_phi + F_th
 # Compute Solution
 
 try:
-    fn.solve(F == 0, u, bcs, solver_parameters=fu.newton_solver_parameters())
+    fn.solve(F == 0, u, bcs, solver_parameters={
+             "nonlinear_solver": "newton",
+             "newton_solver": {
+                 "linear_solver": "superlu",
+                 "relaxation_parameter": 1.0
+             }
+         })
 except RuntimeError as e:
     print(repr(e))
 

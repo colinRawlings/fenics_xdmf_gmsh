@@ -6,3 +6,4 @@
 u.pvd
 .DS_Store
 *.pvtu
+__pycache__/
