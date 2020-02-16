@@ -65,10 +65,10 @@ u_l = u.sub(2)
 
 i, j = ufl.indices(2)
 x = fn.SpatialCoordinate(mesh_M.mesh)
-dx1 = fn.Measure("dx",
+dx_phi = fn.Measure("dx",
                  domain=mesh_phi.mesh,
                  subdomain_data=mesh_phi.subdomain_mesh_func)
-dx2 = fn.Measure("dx",
+dx_M = fn.Measure("dx",
                  domain=mesh_M.mesh,
                  subdomain_data=mesh_M.subdomain_mesh_func)
 
@@ -94,14 +94,14 @@ fn.solve(a_init == L_init, u_M, [])
 
 # Define PDE
 
-F__phi_M = fn.Dx(u_phi, i) * fn.Dx(v_phi, i) * dx1
-F__phi_M += u_M[i] * fn.Dx(v_phi, i) * dx1(2)
+F__phi_M = fn.Dx(u_phi, i) * fn.Dx(v_phi, i) * dx_phi
+F__phi_M += u_M[i] * fn.Dx(v_phi, i) * dx_phi(2)
 
-F__M_phi = fn.Constant(A) * fn.Dx(u_M[i], j) * fn.Dx(v_M[i], j) * dx2
-F__M_phi += fn.Constant(-1) * (fn.Dx(u_phi, i) + H_app[i]) * v_M[i] * dx2
+F__M_phi = fn.Constant(A) * fn.Dx(u_M[i], j) * fn.Dx(v_M[i], j) * dx_M
+F__M_phi += fn.Constant(-1) * (fn.Dx(u_phi, i) + H_app[i]) * v_M[i] * dx_M
 
-F__M_l = fn.Constant(-1) * u_l * u_M[i] * v_M[i] * dx2
-F__M_l += (u_M[i] * u_M[i] - 1) * v_l * dx2
+F__M_l = fn.Constant(-1) * u_l * u_M[i] * v_M[i] * dx_M
+F__M_l += (u_M[i] * u_M[i] - 1) * v_l * dx_M
 
 F = F__phi_M + F__M_phi + F__M_l
 
