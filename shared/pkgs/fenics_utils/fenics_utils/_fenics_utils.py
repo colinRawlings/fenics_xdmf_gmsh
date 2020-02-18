@@ -27,7 +27,7 @@ from typing import Optional
 PARAVIEW_TMP_FOLDERPATH = os.path.abspath("./paraview_tmp")
 
 #############################################################################
-# DEFINITIONS
+# CLASSES
 #############################################################################
 
 
@@ -52,6 +52,13 @@ class LabelledMesh():
     @property
     def boundary_mesh_func(self) -> Optional[fn.MeshFunction]:
         return self._boundary_mesh_func
+
+###########################################################
+
+
+class IsBoundary(fn.SubDomain):
+    def inside(self, x, on_boundary):
+        return on_boundary
 
 
 #############################################################################
@@ -612,141 +619,3 @@ def get_results_dir(script_path: str) -> str:
 
     return results_dir
 
-
-#############################################################################
-
-# Preconditioner   |  Description
-# --------------------------------------------------------------
-# amg              |  Algebraic multigrid
-# default          |  default preconditioner
-# hypre_amg        |  Hypre algebraic multigrid (BoomerAMG)
-# hypre_euclid     |  Hypre parallel incomplete LU factorization
-# hypre_parasails  |  Hypre parallel sparse approximate inverse
-# icc              |  Incomplete Cholesky factorization
-# ilu              |  Incomplete LU factorization
-# jacobi           |  Jacobi iteration
-# none             |  No preconditioner
-# petsc_amg        |  PETSc algebraic multigrid
-# sor              |  Successive over-relaxation
-
-
-def newton_solver_parameters():
-    return {
-        "nonlinear_solver": "newton",
-        "newton_solver": {
-            "linear_solver": "lu"
-        }
-    }
-
-
-#############################################################################
-# DEPRECATED!!!
-#############################################################################
-
-
-def solve_weak_form(u, F, boundary_conditions=[]):
-    """
-
-    A flexible solution strategy (not optimal in case of a linear problem)
-
-    :param u: field
-    :param F: weak form F(u, w) = 0
-    :param boundary_conditions: List of boundary conditions
-    :return: u (n.b. not a copy just a reference to the field supplied as input)
-    """
-
-    import dolfin as fn
-
-    R = fn.action(F, u)
-    dR = fn.derivative(R, u)
-
-    problem = fn.NonlinearVariationalProblem(R, u, boundary_conditions, dR)
-    solver = fn.NonlinearVariationalSolver(problem)
-    solver.parameters['newton_solver']['relative_tolerance'] = 1e-6
-    solver.parameters['newton_solver']['relaxation_parameter'] = 1.
-    solver.parameters['newton_solver']['error_on_nonconvergence'] = False
-    solver.solve()
-
-    return u
-
-
-#############################################################################
-
-
-def save_mesh(mesh, mesh_filepath=None, open_file=False):
-    """
-
-    :param mesh:
-    :param mesh_filepath:
-    :param open_file: try to open the saved mesh in paraview
-    :return:
-    """
-    import dolfin as fn
-
-    if not isinstance(mesh, fn.Mesh):
-        raise ValueError("Expected a dolfin.Mesh")
-
-    if mesh_filepath is None:
-        mesh_filepath = os.path.join(PARAVIEW_TMP_FOLDERPATH, "mesh.pvd")
-
-    mesh_filepath = os.path.abspath(mesh_filepath)
-
-    if os.path.isfile(mesh_filepath):
-        os.remove(mesh_filepath)
-
-    mesh_file = fn.File(mesh_filepath)
-
-    mesh_file << mesh
-
-    print(f"Wrote mesh to: {mesh_filepath}")
-
-    if open_file:
-        sp.Popen(['paraview', mesh_filepath])
-
-    return mesh_filepath
-
-
-#############################################################################
-
-
-def save_function(u, function_filepath=None, open_file=False):
-    """
-
-    :param u: (Function or Boundary Mesh Function or Subdomain Mesh Function)
-    :param function_filepath: location to store the temporary pvd file
-    :param open_file: try to open the saved function in paraview
-
-    :return: function_filepath (absolute)
-    """
-
-    import dolfin as fn
-
-    if function_filepath is None:
-        function_filepath = os.path.join(PARAVIEW_TMP_FOLDERPATH,
-                                         "function.pvd")
-
-    function_filepath = os.path.abspath(function_filepath)
-
-    if os.path.isfile(function_filepath):
-        os.remove(function_filepath)
-
-    result_file = fn.File(function_filepath)
-
-    result_file << u
-
-    print(f"Wrote function to: {function_filepath}")
-
-    if open_file:
-        sp.Popen(['paraview', function_filepath])
-
-    return function_filepath
-
-
-###########################################################
-# Classes
-###########################################################
-
-
-class IsBoundary(fn.SubDomain):
-    def inside(self, x, on_boundary):
-        return on_boundary

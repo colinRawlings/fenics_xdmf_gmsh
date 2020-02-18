@@ -34,7 +34,7 @@ def test_2d_geo_import_and_solve():
     # Solve a dummy problem
 
     V = fn.FunctionSpace(labelled_mesh.mesh, "CG", 2)
-    u = fn.TrialFunction(V)
+    u = fn.Function(V)
     v = fn.TestFunction(V)
 
     bcs = [fn.DirichletBC(V, fn.Constant(0), labelled_mesh.boundary_mesh_func, 2)]
@@ -47,8 +47,7 @@ def test_2d_geo_import_and_solve():
 
     #
 
-    u = fn.Function(V)
-    u = fu.solve_weak_form(u, F, bcs)
+    fn.solve(F==0, u, bcs)
 
     # 
 
@@ -61,7 +60,7 @@ def test_3d_geo_import_and_solve():
     # Solve a dummy problem
 
     V = fn.FunctionSpace(labelled_mesh.mesh, "CG", 2)
-    u = fn.TrialFunction(V)
+    u = fn.Function(V)
     v = fn.TestFunction(V)
 
     bcs = [fn.DirichletBC(V, fn.Constant(0), labelled_mesh.boundary_mesh_func, 2)]
@@ -74,8 +73,7 @@ def test_3d_geo_import_and_solve():
 
     #
 
-    u = fn.Function(V)
-    u = fu.solve_weak_form(u, F, bcs)
+    fn.solve(F==0, u, bcs)
 
     assert round(0.0146543, 5) == round(u(0.8, 0.8, 0.5), 5)
 

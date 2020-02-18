@@ -24,6 +24,8 @@ GEO_FILEPATH = os.path.join(os.path.dirname(__file__), os.pardir, "geo",
                             "circle_square_center_pt.geo")
 assert os.path.isfile(GEO_FILEPATH)
 
+RESULTS_DIR = fu.get_results_dir(__file__)
+
 ###############################################################
 # Functions
 ###############################################################
@@ -54,5 +56,5 @@ plt.show()
 
 lbl_meshview = fu.create_mesh_view(lbl_mesh)
 
-file = fn.File(comm, "mpi_meshview_out_2d.pvd")
+file = fn.File(comm, os.path.join(RESULTS_DIR, "mpi_meshview_out_2d.pvd"))
 file << lbl_meshview.subdomain_mesh_func

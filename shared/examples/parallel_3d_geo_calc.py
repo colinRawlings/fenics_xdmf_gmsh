@@ -19,6 +19,8 @@ GEO_FILEPATH = os.path.join(os.path.dirname(__file__), os.pardir, "geo",
                         "cylinder_sphere.geo")
 assert os.path.isfile(GEO_FILEPATH)
 
+RESULTS_DIR = fu.get_results_dir(__file__)
+
 ###############################################################
 # Functions
 ###############################################################
@@ -58,5 +60,5 @@ F += fn.Constant(1) * v * dx_mf(2)
 
 fn.solve(F == 0, u, bc)
 
-file = fn.File(comm, "mpi_out.pvd")
+file = fn.File(comm, os.path.join(RESULTS_DIR, "mpi_out.pvd"))
 file << u

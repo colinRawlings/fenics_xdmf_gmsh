@@ -17,8 +17,7 @@ import matplotlib.pyplot as plt
 ###########################################################
 
 GEO_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, "shared", "geo"))
-
-fn.set_log_level(10)
+RESULTS_DIR = fu.get_results_dir(__file__)
 
 ###########################################################
 # Functions
@@ -78,10 +77,10 @@ fn.solve(a == L, w, bcs, solver_parameters={"linear_solver": "lu"})
 
 #
 
-file_u = fn.File("u.pvd")
+file_u = fn.File(os.path.join(RESULTS_DIR, "u.pvd"))
 file_u << w.sub(0)
 
-file_ue = fn.File("ue.pvd")
+file_ue = fn.File(os.path.join(RESULTS_DIR, "ue.pvd"))
 file_ue << w.sub(1)
 
 #
