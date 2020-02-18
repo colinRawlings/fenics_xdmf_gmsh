@@ -615,6 +615,9 @@ def get_results_dir(script_path: str) -> str:
         os.path.join(os.path.dirname(script_path), os.pardir, 'results',
                      results_folder_name))
 
+    if os.path.isdir(results_dir):
+        shutil.rmtree(results_dir)
+
     os.makedirs(results_dir, exist_ok=True)
 
     return results_dir
