@@ -22,7 +22,7 @@ GEO_DIR = os.path.abspath(
 
 RESULTS_DIR = fu.get_results_dir(__file__)
 
-A = 0.01
+A = 0.002
 Hx_app = 0.01
 core_radius_guess = 0.2
 
@@ -37,7 +37,7 @@ labelled_mesh = fu.convert_3d_gmsh_geo_to_fenics_mesh(geo_filepath, {
     "sphere_radius": 2,
     "dx_mesh_inner": 0.06,
     "dx_mesh_outer": 0.4,
-    "cylinder_height": 0.25
+    "cylinder_height": 0.1
 })
 
 mesh_phi = fu.create_mesh_view(labelled_mesh)
@@ -46,8 +46,8 @@ mesh_M = fu.create_mesh_view(labelled_mesh, 2)
 # Spaces
 
 W_phi = fn.FunctionSpace(mesh_phi.mesh, "CG", 1)
-W_M = fn.VectorFunctionSpace(mesh_M.mesh, "CG", 1)
-W_l = fn.FunctionSpace(mesh_M.mesh, "CG", 1)
+W_M = fn.VectorFunctionSpace(mesh_M.mesh, "CG", 2)
+W_l = fn.FunctionSpace(mesh_M.mesh, "CG", 2)
 
 W = fn.MixedFunctionSpace(W_phi, W_M, W_l)
 
@@ -94,7 +94,7 @@ fn.solve(a_init == L_init, u_M, [])
 
 # Define PDE
 
-Hx_app_all = np.linspace(0, 0.2, 60)
+Hx_app_all = np.linspace(0, 0.05, 20)
 
 for index, Hx_app in enumerate(Hx_app_all):
 
@@ -124,22 +124,15 @@ for index, Hx_app in enumerate(Hx_app_all):
                 "newton_solver": {
                     "linear_solver": "superlu",
                     "maximum_iterations": 200,
-                    "relaxation_parameter": 0.5
+                    "relaxation_parameter": 1.0
                 }
             })
     except:
         print("!!!!Convergence failed")
 
 
-    # Export Solution
+# Export Solution
 
-    comm = fn.MPI.comm_world
-
-    file = fn.File(comm, os.path.join(RESULTS_DIR, f"ms_3d_genlin_M_{index}.pvd"))
-    file << u_M
-
-    file = fn.File(comm, os.path.join(RESULTS_DIR, f"ms_3d_genlin_Mz_{index}.pvd"))
-    file << u_M.sub(2)
-
-    file = fn.File(comm, os.path.join(RESULTS_DIR, f"ms_3d_genlin_u_phi_{index}.pvd"))
-    file << u_phi
+fu.save_function(u_phi, os.path.join(RESULTS_DIR, "u_phi.pvd"))
+fu.save_function(u_M.sub(2), os.path.join(RESULTS_DIR, "Mz.pvd"))
+fu.save_function(u_M, os.path.join(RESULTS_DIR, "M.pvd"))
