@@ -44,7 +44,7 @@ def refine_and_project_to_cg1(u: fn.Function,
     if num_refinements < 1:
         return u
 
-    num_refinements = min(num_refinements, max_refinements)
+    num_refinements = min(num_refinements, max_refinements) + 1
 
     refined_mesh = u.function_space().mesh()
 

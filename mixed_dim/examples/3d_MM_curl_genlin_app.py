@@ -10,6 +10,7 @@ import numpy as np
 
 import dolfin as fn
 import ufl
+import tqdm
 
 import fenics_utils as fu
 
@@ -22,9 +23,10 @@ GEO_DIR = os.path.abspath(
 
 RESULTS_DIR = fu.get_results_dir(__file__)
 
-A = 0.002
+A = 0.02
 Hx_app = 0.01
 core_radius_guess = 0.2
+element_order = 1
 
 ###########################################################
 # Main
@@ -35,9 +37,9 @@ core_radius_guess = 0.2
 geo_filepath = os.path.join(GEO_DIR, "cylinder_sphere.geo")
 labelled_mesh = fu.convert_3d_gmsh_geo_to_fenics_mesh(geo_filepath, {
     "sphere_radius": 2,
-    "dx_mesh_inner": 0.06,
+    "dx_mesh_inner": 0.1,
     "dx_mesh_outer": 0.4,
-    "cylinder_height": 0.1
+    "cylinder_height": 0.5
 })
 
 mesh_phi = fu.create_mesh_view(labelled_mesh)
@@ -46,8 +48,8 @@ mesh_M = fu.create_mesh_view(labelled_mesh, 2)
 # Spaces
 
 W_phi = fn.FunctionSpace(mesh_phi.mesh, "CG", 1)
-W_M = fn.VectorFunctionSpace(mesh_M.mesh, "CG", 2)
-W_l = fn.FunctionSpace(mesh_M.mesh, "CG", 2)
+W_M = fn.VectorFunctionSpace(mesh_M.mesh, "CG", element_order)
+W_l = fn.FunctionSpace(mesh_M.mesh, "CG", element_order)
 
 W = fn.MixedFunctionSpace(W_phi, W_M, W_l)
 
@@ -94,11 +96,9 @@ fn.solve(a_init == L_init, u_M, [])
 
 # Define PDE
 
-Hx_app_all = np.linspace(0, 0.05, 20)
+Hx_app_all = np.linspace(0, 0.1, 20)
 
-for index, Hx_app in enumerate(Hx_app_all):
-
-    print(f"Starting step: {index+1}/{Hx_app_all.shape[0]}")
+for index, Hx_app in enumerate(tqdm.tqdm(Hx_app_all)):
 
     H_app = fn.as_vector((fn.Constant(Hx_app), fn.Constant(0), fn.Constant(0)))
 
@@ -115,24 +115,20 @@ for index, Hx_app in enumerate(Hx_app_all):
 
     # Compute Solution
 
-    try:
-        fn.solve(F == 0,
-            u,
-            bc1,
-            solver_parameters={
-                "nonlinear_solver": "newton",
-                "newton_solver": {
-                    "linear_solver": "superlu",
-                    "maximum_iterations": 200,
-                    "relaxation_parameter": 1.0
-                }
-            })
-    except:
-        print("!!!!Convergence failed")
+    fn.solve(F == 0,
+        u,
+        bc1,
+        solver_parameters={
+            "nonlinear_solver": "newton",
+            "newton_solver": {
+                "linear_solver": "superlu",
+                "maximum_iterations": 50,
+                "relaxation_parameter": 1.0
+            }
+        })
 
+    # Export Solution
 
-# Export Solution
-
-fu.save_function(u_phi, os.path.join(RESULTS_DIR, "u_phi.pvd"))
-fu.save_function(u_M.sub(2), os.path.join(RESULTS_DIR, "Mz.pvd"))
-fu.save_function(u_M, os.path.join(RESULTS_DIR, "M.pvd"))
+    fu.save_function(u_phi, os.path.join(RESULTS_DIR, f"u_phi_{index}.pvd"))
+    fu.save_function(u_M.sub(2), os.path.join(RESULTS_DIR, f"Mz_{index}.pvd"))
+    fu.save_function(u_M, os.path.join(RESULTS_DIR, f"M_{index}.pvd"))

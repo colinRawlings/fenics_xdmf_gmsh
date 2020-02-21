@@ -26,7 +26,7 @@ RESULTS_DIR = fu.get_results_dir(__file__)
 A = 0.02
 Hx_app = 0.0
 core_radius_guess = 0.2
-element_order = 2
+element_order = 1
 
 ###########################################################
 # Main
@@ -43,27 +43,34 @@ labelled_mesh = fu.convert_3d_gmsh_geo_to_fenics_mesh(geo_filepath, {
 
 mesh_phi = fu.create_mesh_view(labelled_mesh)
 mesh_M = fu.create_mesh_view(labelled_mesh, 2)
+mesh_kt = fn.MeshView.create(labelled_mesh.boundary_mesh_func, 1)
+
 
 # Spaces
 
 W_phi = fn.FunctionSpace(mesh_phi.mesh, "CG", 1)
 W_M = fn.VectorFunctionSpace(mesh_M.mesh, "CG", element_order)
 W_l = fn.FunctionSpace(mesh_M.mesh, "CG", element_order)
+W_kt = fn.FunctionSpace(mesh_kt.mesh, "CG", 1)
+W_phiE = fn.FunctionSpace(mesh_phi.mesh, "CG", 1)
 
-W = fn.MixedFunctionSpace(W_phi, W_M, W_l)
+W = fn.MixedFunctionSpace(W_phi, W_M, W_l, W_kt, W_phiE)
 
 # Define BC
 
-bc1 = fn.DirichletBC(W_phi, fn.Constant(0), fu.IsBoundary())
+# bc1 = fn.DirichletBC(W_phi, fn.Constant(0), fu.IsBoundary())
+bc1 = []
 
 # Define terms
 
-(v_phi, v_M, v_l) = fn.TestFunctions(W)
+(v_phi, v_M, v_l, v_Lkt, v_phiE) = fn.TestFunctions(W)
 
 u = fn.Function(W)
 u_phi = u.sub(0)
 u_M = u.sub(1)
 u_l = u.sub(2)
+u_Lkt = u.sub(3)  # the lagrange multiplier for pinning phi internal to phi external
+u_phiE = u.sub(4)
 
 i, j = ufl.indices(2)
 x = fn.SpatialCoordinate(mesh_M.mesh)
@@ -73,6 +80,8 @@ dx_phi = fn.Measure("dx",
 dx_M = fn.Measure("dx",
                   domain=mesh_M.mesh,
                   subdomain_data=mesh_M.subdomain_mesh_func)
+dL = fn.Measure("dx", domain=mesh_kt.mesh)
+
 
 H_app = fn.as_vector((fn.Constant(Hx_app), fn.Constant(0), fn.Constant(0)))
 
@@ -104,6 +113,10 @@ F__M_phi += fn.Constant(-1) * (fn.Dx(u_phi, i) + H_app[i]) * v_M[i] * dx_M
 
 F__M_l = fn.Constant(-1) * u_l * u_M[i] * v_M[i] * dx_M
 F__M_l += (u_M[i] * u_M[i] - 1) * v_l * dx_M
+
+F__phiE_Lkt = fn.inner(fn.grad(u_phiE), fn.grad(v_phiE))*dx_phi
+F__phiE_Lkt += 
+
 
 F = F__phi_M + F__M_phi + F__M_l
 
