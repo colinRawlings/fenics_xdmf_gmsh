@@ -1,4 +1,4 @@
-FROM ceciledc/fenics_mixed_dimensional:27-01-20 
+FROM ceciledc/fenics_mixed_dimensional:05-02-20
 
 ARG vGMSH_VERSION=4.5.0
 ARG vPYRIGHT_VERSION=1.1.19
@@ -10,9 +10,9 @@ RUN cd /home/fenics/apps && tar -xvzf /home/fenics/apps/gmsh.tgz
 ENV PYTHONPATH="/home/fenics/apps/gmsh-${vGMSH_VERSION}-Linux64-sdk/lib:${PYTHONPATH}"
 ENV PATH="/home/fenics/apps/gmsh-${vGMSH_VERSION}-Linux64-sdk/bin:${PATH}"
 
-RUN pip install meshio
-RUN pip install lxml
-RUN pip install --no-binary=h5py h5py
+RUN pip install meshio==3.3.1
+RUN pip install lxml==4.5.0
+RUN pip install --no-binary=h5py h5py==2.10.0
 
 RUN mkdir /home/fenics/pkgs
 COPY ./requirements-dev.txt /home/fenics/requirements-dev.txt
@@ -25,11 +25,11 @@ RUN npm install -g pyright@${vPYRIGHT_VERSION}
 # fenicstools
 
 # (install missing fenicstools deps: https://github.com/mikaem/fenicstools/issues/26)
-RUN pip3 install cppimport
+RUN pip3 install cppimport==18.11.8
 RUN apt-get install -y python3-h5py
-RUN pip3 install pyvtk
+RUN pip3 install pyvtk==0.5.18
 
-RUN pip3 install git+https://github.com/mikaem/fenicstools
+RUN pip3 install git+https://github.com/mikaem/fenicstools@2019.1
 
 # (trigger import to get fenicstools to do its compilation)
 RUN python3 -c "import fenicstools"

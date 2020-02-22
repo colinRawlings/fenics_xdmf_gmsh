@@ -610,15 +610,20 @@ def get_results_dir(script_path: str) -> str:
         str -- [description]
     """
 
+    comm = fn.MPI.comm_world
+
     results_folder_name = os.path.splitext(os.path.basename(script_path))[0]
     results_dir = os.path.abspath(
         os.path.join(os.path.dirname(script_path), os.pardir, 'results',
                      results_folder_name))
 
-    if os.path.isdir(results_dir):
-        shutil.rmtree(results_dir)
+    if fn.MPI.rank(comm) == 0:
+        if os.path.isdir(results_dir):
+            shutil.rmtree(results_dir)
 
-    os.makedirs(results_dir, exist_ok=True)
+        os.makedirs(results_dir, exist_ok=True)
+
+    fn.MPI.barrier(comm)
 
     return results_dir
 
