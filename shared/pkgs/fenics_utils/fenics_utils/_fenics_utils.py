@@ -102,29 +102,6 @@ def reset(matplotlib_mode='inline'):
 #############################################################################
 
 
-def clean_output_folder(mesh_folderpath: str) -> None:
-    """
-
-    :param mesh_folderpath:
-    :return:
-    """
-
-    if os.path.isdir(mesh_folderpath):
-        shutil.rmtree(mesh_folderpath)
-
-    os.mkdir(mesh_folderpath)
-
-
-#############################################################################
-
-
-def close_all_paraview() -> None:
-    sp.call(['killall', 'paraview'])
-
-
-#############################################################################
-
-
 def convert_3d_gmsh_geo_to_fenics_mesh(
         geo_filepath: str,
         geo_params: ty.Optional[ty.Dict["str", float]] = None) -> LabelledMesh:
@@ -600,7 +577,7 @@ def create_mesh_view(labelled_mesh: LabelledMesh,
 #############################################################################
 
 
-def get_results_dir(script_path: str) -> str:
+def get_clean_results_dir(script_path: str) -> str:
     """Suggest and init a results_dir for the given script
     
     Arguments:
@@ -610,12 +587,35 @@ def get_results_dir(script_path: str) -> str:
         str -- [description]
     """
 
+    comm = fn.MPI.comm_world
+
     results_folder_name = os.path.splitext(os.path.basename(script_path))[0]
     results_dir = os.path.abspath(
         os.path.join(os.path.dirname(script_path), os.pardir, 'results',
                      results_folder_name))
 
-    os.makedirs(results_dir, exist_ok=True)
+    if fn.MPI.rank(comm) == 0:
+
+        if os.path.isdir(results_dir):
+            results_dir_contents = os.listdir(results_dir)
+            
+            for content in results_dir_contents:
+                abs_content = os.path.join(results_dir, content)
+
+                if content.endswith('.pvsm'):  # don't remove paraview state/scene files
+                    continue
+
+                if os.path.isdir(abs_content):
+                    shutil.rmtree(abs_content)
+
+                try:
+                    os.remove(abs_content)
+                except OSError as e:
+                    print(f"Failed to remove: {abs_content} with:\n{e}")
+
+        os.makedirs(results_dir, exist_ok=True)
+
+    fn.MPI.barrier(comm)
 
     return results_dir
 

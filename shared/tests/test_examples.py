@@ -31,6 +31,10 @@ def test_script_execution(script):
     assert(os.path.isdir(EXAMPLE_SCRIPTS_DIR))
 
     print(f"testing: {script}")
+
+    if script.endswith('app.py'):
+        return
+
     runpy.run_path(script)
 
 @pytest.mark.parametrize('script', glob.glob(os.path.join(SHARED_EXAMPLE_SCRIPTS_DIR, "*.py")))

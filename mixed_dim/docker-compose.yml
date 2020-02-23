@@ -8,3 +8,10 @@ services:
       - ../shared:/home/fenics/mixed_dim/shared
     stdin_open: true
     tty: true
+  pvs:
+    build: ../pvs
+    volumes:
+      - ./results:/opt/paraview/share/paraview-5.6/data
+    ports:
+      - 8080:8080
+    command: --port 8080 --content /opt/paraview/share/paraview-5.6/web/visualizer/www/ --data /opt/paraview/share/paraview-5.6/data

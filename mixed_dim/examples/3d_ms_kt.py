@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 ###########################################################
 
 GEO_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, "shared", "geo"))
-RESULTS_DIR = fu.get_results_dir(__file__)
+RESULTS_DIR = fu.get_clean_results_dir(__file__)
 
 ###########################################################
 # Functions
@@ -73,7 +73,7 @@ L += fn.Constant(0) * vl * dL
 #
 
 w = fn.Function(W)
-fn.solve(a == L, w, bcs, solver_parameters={"linear_solver": "lu"})
+fn.solve(a == L, w, [], solver_parameters={"linear_solver": "lu"})
 
 #
 

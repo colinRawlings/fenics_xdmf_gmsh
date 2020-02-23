@@ -19,7 +19,7 @@ GEO_FILEPATH = os.path.join(os.path.dirname(__file__), os.pardir, "geo",
                         "cylinder_sphere.geo")
 assert os.path.isfile(GEO_FILEPATH)
 
-RESULTS_DIR = fu.get_results_dir(__file__)
+RESULTS_DIR = fu.get_clean_results_dir(__file__)
 
 ###############################################################
 # Functions
