@@ -81,7 +81,7 @@ u = fn.Function(W)
 u_phi = u.sub(0)
 u_th = u.sub(1)
 
-u_th.interpolate(fn.Constant(np.pi / 4))
+u_th.interpolate(fn.Constant(np.pi / 4))  # type: ignore
 
 dx1 = fn.Measure("dx",
                  domain=W.sub_space(0).mesh(),
