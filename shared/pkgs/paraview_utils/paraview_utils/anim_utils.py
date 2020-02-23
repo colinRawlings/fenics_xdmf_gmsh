@@ -14,7 +14,7 @@ import subprocess as sp
 # add python paraview bin to python path so that the import works(?) probably a terrible idea
 # as would see all paraview packages ...
 
-from paraview import simple as pv
+from paraview import simple as pv  # type: ignore
 
 #############################################################################
 # Defintions
