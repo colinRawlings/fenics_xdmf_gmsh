@@ -7,3 +7,8 @@ u.pvd
 .DS_Store
 *.pvtu
 __pycache__/
+*.py.bak
+particles/twoD_cyl/mesh/out*.geo
+particles/twoD_cyl/mesh/out*.msh
+*.xml
+*.pickle
