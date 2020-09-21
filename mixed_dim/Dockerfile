@@ -25,11 +25,11 @@ RUN npm install -g pyright@${vPYRIGHT_VERSION}
 # fenicstools
 
 # (install missing fenicstools deps: https://github.com/mikaem/fenicstools/issues/26)
-RUN pip3 install cppimport
+RUN pip3 install cppimport==18.11.18
 RUN apt-get install -y python3-h5py
-RUN pip3 install pyvtk
+RUN pip3 install pyvtk==0.5.18
 
-RUN pip3 install git+https://github.com/mikaem/fenicstools
+RUN pip3 install git+https://github.com/mikaem/fenicstools@2019.1
 
 # (trigger import to get fenicstools to do its compilation)
 RUN python3 -c "import fenicstools"
