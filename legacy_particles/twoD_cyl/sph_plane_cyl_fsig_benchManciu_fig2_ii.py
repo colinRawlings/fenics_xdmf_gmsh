@@ -15,14 +15,17 @@ model of Behrens
 import numpy as np
 import particle_helpers as ph
 import fenics_helpers as fh
+import scipy as sp
+from dolfin import parameters
+import matplotlib.pyplot as plt
 
+plt.ion()
+parameters.allow_extrapolation = True
 
-execfile('/home/cra/dolfin/useful_f/init_cra.py')
-
-fName_tail = r'/home/cra/dolfin/particles/twoD_cyl/mesh/cyl_sph_plane_tail_02.geo'
-fName_log = r'/home/cra/dolfin/particles/twoD_cyl/logFile.txt'
-folderResults = r'/home/cra/dolfin/particles/twoD_cyl/'
-figFolder = r'/home/cra/Documents/pres/sph_cyl/figs/'
+fName_tail = r'/home/fenics/legacy/twoD_cyl/mesh/cyl_sph_plane_tail_02.geo'
+fName_log = r'logFile.txt'
+folderResults = r'./'
+figFolder = r'/home/fenics/legacy/twoD_cyl/figs/'
 
 Rs_mesh = 0.3 # cell size as a function of 1/k0 at the charge sheets
 
@@ -110,13 +113,8 @@ for p in range(len(Lr_nm)):
     else:
         print('failed')
         
-    
-
-
 #====== plotting
 f0,axUP = plt.subplots(nrows=1,ncols=2)
-fh.make_cfigw()
-fh.place_fig(f0)
 
 x_lD = x_ND*(geom_ND['l0_m']/(lD_nm*1e-9))
 Lr_lD = Lr_nm/lD_nm
@@ -124,7 +122,6 @@ xc_lD = xc*(geom_ND['l0_m']/(lD_nm*1e-9))
 
 Iinf = np.argmax(Lr_nm)
 F_inf = Fchr[Iinf]+Ffr[Iinf]
-
 
 for p in range(len(Lr_nm)):
     sci = fh.spline_con_gradient(x_ND,sigma_NDr[p,:],[],[],k=3)    
@@ -146,9 +143,7 @@ axUP[1].set_xlabel('$L/\lambda_D$')
 axUP[1].set_ylabel('$(F(L) - F(\infty))/ k_B T$')
 axUP[1].legend()    
     
-plt.draw()
-
-f,axU1 = fh.pfig()
+f,axU1 = plt.subplots(nrows=1,ncols=1)
 
 axU1.plot(Lr_lD,2*Fchr+Ffr-F_inf,'ok',label='fenics') # mult by 2 as two surfaces and integral only conducted over one
 axU1.plot(Lr_man_nm/lD_nm,F_man_ND,'+-r',label='Manciu')
@@ -156,6 +151,7 @@ axU1.legend(frameon=False,loc='best')
 fh.cxlbl(axU1,'L/\lambda_D','(F(L) - F(\infty))/ k_B T')
 f.savefig(figFolder+'bench_Manciu_F.pdf')
 
+plt.show(block=True)
 
 ##======== save
 #fName_save = folderResults+r'move_part_in_Qreg_gap.pickle'
