@@ -3,6 +3,8 @@ services:
   stable:
     build: .
     working_dir: /home/fenics/stable
+    environment: 
+      - DISPLAY
     volumes: 
       - .:/home/fenics/stable
       - ../shared:/home/fenics/stable/shared

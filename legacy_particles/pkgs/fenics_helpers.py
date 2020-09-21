@@ -230,9 +230,9 @@ def paraview_fld(u_list,meshName='tmp',Verbose=False,apply_stamp=False,pv_script
     
     # --- build cmd
     if p==1:
-        res=os.system('/home/cra/apps/ParaView-5.1.2-Qt4-OpenGL2-MPI-Linux-64bit/bin/paraview --data='+meshName+'_0.pvd'+' &')
+        res=os.system('paraview --data='+meshName+'_0.pvd'+' &')
     else:
-        res=os.system('/home/cra/apps/ParaView-5.1.2-Qt4-OpenGL2-MPI-Linux-64bit/bin/paraview --data='+meshName+'_..pvd'+' &')
+        res=os.system('paraview --data='+meshName+'_..pvd'+' &')
     
     if Verbose:
         print(res)
