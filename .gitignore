@@ -10,5 +10,7 @@ __pycache__/
 *.py.bak
 particles/twoD_cyl/mesh/out*.geo
 particles/twoD_cyl/mesh/out*.msh
+legacy_particles/twoD_cyl/mesh/out*.geo
+legacy_particles/twoD_cyl/mesh/out*.msh
 *.xml
 *.pickle

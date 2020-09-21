@@ -9,7 +9,7 @@ Print the system matrices for a one dimensional problem:
 treated using CG1 elements such that it may be easily compared 
 with  the expected system matrices.
 
-n.b. the use of the stable container since one d meshes seem
+n.b. the use of the legacy container since one d meshes seem
 broken in the the MeshView dev container.
 """
 
