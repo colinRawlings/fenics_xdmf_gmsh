@@ -14,3 +14,4 @@ legacy_particles/twoD_cyl/mesh/out*.geo
 legacy_particles/twoD_cyl/mesh/out*.msh
 *.xml
 *.pickle
+legacy_particles/docker-compose-platform.yml
