@@ -1,0 +1,12 @@
+version: "3.7"
+services:
+  stable:
+    build: .
+    working_dir: /home/fenics/stable
+    environment: 
+      - DISPLAY
+    volumes: 
+      - .:/home/fenics/stable
+      - ../shared:/home/fenics/stable/shared
+    stdin_open: true
+    tty: true

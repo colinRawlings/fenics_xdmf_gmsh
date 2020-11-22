@@ -1,0 +1,12 @@
+version: "3.7"
+services:
+  legacy:
+    build: .
+    working_dir: /home/fenics/legacy
+    environment:
+      - DISPLAY
+    volumes: 
+      - .:/home/fenics/legacy
+      - ../shared:/home/fenics/legacy/shared
+    stdin_open: true
+    tty: true
