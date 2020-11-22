@@ -9,6 +9,17 @@ env_path = $(makefile_dir)docker/.env
 venv_ok_path := ${venv_path}/venv_ok.txt
 docker_compose_file = ${makefile_dir}docker/docker-compose.yml
 
+# helpers for notebooks
+
+examples_dir = ${makefile_dir}examples
+notebooks_dir = ${makefile_dir}notebooks
+project_dir = ${makefile_dir}
+
+examples_dir = ${makefile_dir}examples
+notebooks_config_path = ${notebooks_dir}/config.ini
+project_config_path = ${makefile_dir}config.ini
+config_txt = project_dir=${project_dir}
+
 ifdef OS
 	VENV_CREATE_PYTHON = py -3
 	DEL_CMD = del
@@ -40,7 +51,7 @@ ${venv_ok_path}:
 venv: ${venv_ok_path}
 
 build: env venv
-	docker-compose -f ${docker_compose_file} build
+	docker-compose -f ${docker_compose_file} build --no-cache
 
 # Run
 
@@ -60,4 +71,29 @@ tests:
 tests-docker:
 	docker-compose -f ${docker_compose_file} run fenics "pytest ./tests ./pkgs/fenics_utils/tests ./pkgs/paraview_utils/tests"
 
-# todo: tests-docker
+
+# Notebook config
+
+${examples_config_path}:
+	$(file > ${examples_config_path}, [Config])
+	$(file >> ${examples_config_path}, ${config_txt})
+
+${notebooks_config_path}:
+	$(file > ${notebooks_config_path}, [Config])
+	$(file >> ${notebooks_config_path}, ${config_txt})
+
+${project_config_path}:
+	$(file > ${project_config_path}, [Config])
+	$(file >> ${project_config_path}, ${config_txt})
+
+examples_config: ${examples_config_path}
+notebooks_config: ${notebooks_config_path}
+project_config: ${project_config_path}
+
+config: examples_config notebooks_config project_config
+
+notebooks: config
+	jupytext --to notebook ${examples_dir}/twoD_method_of_images.py -o ${notebooks_dir}/twoD_method_of_images.ipynb
+
+server: config notebooks
+	jupyter lab --ip=0.0.0.0 --port=8888 --allow-root

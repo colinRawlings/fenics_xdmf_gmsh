@@ -31,7 +31,7 @@
     // your server accepts connections from all interfaces (0.0.0.0 or '*'), not just localhost.
     // "appPort": [],
     // Uncomment the next line to run commands after the container is created - for example installing git.
-    "postCreateCommand": "pip install -e -U --force-reinstall /home/fenics/work/pkgs/fenics_utils",
+    "postCreateCommand": "pip install -U --force-reinstall -e /home/fenics/work/pkgs/fenics_utils -e /home/fenics/work/pkgs/paraview_utils",
     // Add the IDs of extensions you want installed when the container is created in the array below.
     "extensions": [
         "ms-python.python",
