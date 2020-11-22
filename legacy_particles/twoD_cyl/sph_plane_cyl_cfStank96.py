@@ -43,7 +43,7 @@ lD_nm = 30  # Debye length
 Tdeg = 21
 
 #-- ideally insensitive parameters
-Rs_mesh = 0.3  # cell size as a function of 1/k0 at the charge sheets
+Rs_mesh = 0.6  # cell size as a function of 1/k0 at the charge sheets
 Nh = 10  # number of different particle positions to try
 w = 10 * lD_nm  # field size
 
@@ -68,8 +68,8 @@ er_dry = {
 }  # n.b. fluid dielectric constant will be calc'd by conv_to_ratchet_ND_pars
 
 #--- calc hr
-hr_nm = np.linspace(0.5 * lD_nm, 2 * lD_nm, Nh)
-#hr_nm = np.asarray([5*lD_nm])
+# hr_nm = np.linspace(0.5 * lD_nm, 2 * lD_nm, Nh)
+hr_nm = np.asarray([5*lD_nm])
 
 geom_ND, params_ND = ph.conv_to_ratchet_ND_pars(geom_nm, lD_nm, er_dry, Tdeg,
                                                 psi_mV)
@@ -85,9 +85,6 @@ for p in range(len(hr_nm)):
     Fr_int[p], Fch, Fc_int, u_, mesh = ph.solve_ratchet_problem(
         geom_ND, params_ND, SDs, fName_tail, doPlots=False, cylSim=True)
     print('Finished: %d/%d' % (p + 1, len(hr_nm)))
-
-plt.figure()
-fn.plot(mesh)
 
 #======-- Stankovich1996 soln
 Hr = np.arange(0.5, 2.1, 0.1)
@@ -110,7 +107,7 @@ Fi_kT = Fci * params_ND['er_fluid']**1.5 / np.sqrt(2 * params_ND['n0'])
 #====================================
 
 #--- do XX
-f0, axs = plt.subplots(nrows=1, ncols=3)
+f0, axs = plt.subplots(nrows=1, ncols=2)
 
 fh.plotXX(u_, (0, -geom_ND['sb']), (0, geom_ND['L'] + geom_ND['st']),
           IV='x1',
@@ -118,19 +115,25 @@ fh.plotXX(u_, (0, -geom_ND['sb']), (0, geom_ND['L'] + geom_ND['st']),
           style='-k')
 axs[0].set_xlabel('$z/l_0$')
 axs[0].set_ylabel('$e\phi/k_B T$')
+axs[0].set_title("mesh size: {} / $k_0$".format(Rs_mesh))
 
 fh.plotXX(u_,(0,geom_ND['L']-geom_ND['h']-geom_ND['a']),\
         (geom_ND['w'],geom_ND['L']-geom_ND['h']-geom_ND['a']),IV='x0',axs=axs[1],style='-k')
 axs[1].set_xlabel('$r/l_0$')
 axs[1].set_ylabel('$e\phi/k_B T$')
+axs[1].set_title("mesh size: {} / $k_0$".format(Rs_mesh))
 
 #-- add in F energy curve
-axs[2].plot(Hrc,Fi_kT+(np.interp(2*lD_nm,hr_nm,Fr_int)-np.min(Fr_int)),'-r',\
+f1, axs = plt.subplots(nrows=1, ncols=1)
+
+axs.plot(Hrc,Fi_kT+(np.interp(2*lD_nm,hr_nm,Fr_int)-np.min(Fr_int)),'-r',\
     label = 'Stankovich96')
-axs[2].plot(hr_nm / lD_nm, Fr_int - np.min(Fr_int), '.b', label='fenics')
-axs[2].legend(loc='best')
-fh.cxlbl(axs[2], 'x/\lambda_D', 'F/(k_BT)')
-axs[2].set_title('$a=%.1f\lambda_D$, $e\phi/k_BT$: sph=%.0f, pl=%.0f'\
+axs.plot(hr_nm / lD_nm, Fr_int - np.min(Fr_int), '.b', label='fenics')
+axs.legend(loc='best')
+fh.cxlbl(axs, 'x/\lambda_D', 'F/(k_BT)')
+axs.set_title('$a=%.1f\lambda_D$, $e\phi/k_BT$: sph=%.0f, pl=%.0f'\
     %(a_ND,psi_s_ND,psi_p_ND))
+
+fh.paraview_fld(u_)
 
 plt.show(block=True)
