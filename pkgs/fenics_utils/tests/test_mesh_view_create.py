@@ -25,7 +25,9 @@ GEO_DIR = rc.resource_filename("fenics_utils", "assets")  # type: ignore
 ###########################################################
 
 
-@pytest.mark.skipif("MeshView" not in dir(fn), reason="requires mixed dimensional branch")
+@pytest.mark.skipif(
+    "MeshView" not in dir(fn), reason="requires mixed dimensional branch"
+)
 def test_view_on_full_mesh_2d():
 
     msh_filepath = os.path.join(GEO_DIR, "simple_poisson_2d.geo")
@@ -40,7 +42,9 @@ def test_view_on_full_mesh_2d():
     assert (vals == np.asarray([1, 2])).all()
 
 
-@pytest.mark.skipif("MeshView" not in dir(fn), reason="requires mixed dimensional branch")
+@pytest.mark.skipif(
+    "MeshView" not in dir(fn), reason="requires mixed dimensional branch"
+)
 def test_view_on_sub_mesh_2d():
 
     msh_filepath = os.path.join(GEO_DIR, "simple_poisson_2d.geo")
@@ -54,7 +58,10 @@ def test_view_on_sub_mesh_2d():
     vals = np.sort(np.unique(smf_vals))
     assert (vals == np.asarray([2])).all()
 
-@pytest.mark.skipif("MeshView" not in dir(fn), reason="requires mixed dimensional branch")
+
+@pytest.mark.skipif(
+    "MeshView" not in dir(fn), reason="requires mixed dimensional branch"
+)
 def test_view_on_full_mesh_3d():
 
     msh_filepath = os.path.join(GEO_DIR, "simple_poisson_3d.geo")
@@ -68,7 +75,10 @@ def test_view_on_full_mesh_3d():
     vals = np.sort(np.unique(smf_vals))
     assert (vals == np.asarray([1, 2])).all()
 
-@pytest.mark.skipif("MeshView" not in dir(fn), reason="requires mixed dimensional branch")
+
+@pytest.mark.skipif(
+    "MeshView" not in dir(fn), reason="requires mixed dimensional branch"
+)
 def test_view_on_sub_mesh_3d():
 
     msh_filepath = os.path.join(GEO_DIR, "simple_poisson_3d.geo")

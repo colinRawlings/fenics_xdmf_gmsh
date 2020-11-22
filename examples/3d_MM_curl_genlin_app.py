@@ -17,8 +17,7 @@ import fenics_utils as fu
 # Definitions
 ###########################################################
 
-GEO_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), os.pardir, "geo"))
+GEO_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, "geo"))
 
 RESULTS_DIR = fu.get_clean_results_dir(__file__)
 
@@ -34,12 +33,15 @@ element_order = 2
 # Create Mesh
 
 geo_filepath = os.path.join(GEO_DIR, "cylinder_sphere.geo")
-labelled_mesh = fu.convert_3d_gmsh_geo_to_fenics_mesh(geo_filepath, {
-    "sphere_radius": 2,
-    "dx_mesh_inner": 0.10,
-    "dx_mesh_outer": 0.4,
-    "cylinder_height": 0.5
-})
+labelled_mesh = fu.convert_3d_gmsh_geo_to_fenics_mesh(
+    geo_filepath,
+    {
+        "sphere_radius": 2,
+        "dx_mesh_inner": 0.10,
+        "dx_mesh_outer": 0.4,
+        "cylinder_height": 0.5,
+    },
+)
 
 mesh_phi = fu.create_mesh_view(labelled_mesh)
 mesh_M = fu.create_mesh_view(labelled_mesh, 2)
@@ -65,12 +67,10 @@ u_phi, u_M, u_l = u.sub(0), u.sub(1), u.sub(2)
 
 i, j = ufl.indices(2)
 x = fn.SpatialCoordinate(mesh_M.mesh)
-dx_phi = fn.Measure("dx",
-                 domain=mesh_phi.mesh,
-                 subdomain_data=mesh_phi.subdomain_mesh_func)
-dx_M = fn.Measure("dx",
-                 domain=mesh_M.mesh,
-                 subdomain_data=mesh_M.subdomain_mesh_func)
+dx_phi = fn.Measure(
+    "dx", domain=mesh_phi.mesh, subdomain_data=mesh_phi.subdomain_mesh_func
+)
+dx_M = fn.Measure("dx", domain=mesh_M.mesh, subdomain_data=mesh_M.subdomain_mesh_func)
 
 
 # Setup Initial condition (curling state)
@@ -79,8 +79,8 @@ u_M_init = fn.TrialFunction(W_M)
 v_M_init = fn.TestFunction(W_M)
 
 rho = fn.sqrt(x[0] * x[0] + x[1] * x[1])  # type: ignore
-Mz_guess = fn.exp(-(rho*rho) / fn.Constant(core_radius_guess**2) )
-xy_rescaling = fn.sqrt(1 - Mz_guess*Mz_guess)
+Mz_guess = fn.exp(-(rho * rho) / fn.Constant(core_radius_guess ** 2))
+xy_rescaling = fn.sqrt(1 - Mz_guess * Mz_guess)
 Mx_guess = -x[1] / (rho + 0.001) * xy_rescaling  # type: ignore
 My_guess = x[0] / (rho + 0.001) * xy_rescaling  # type: ignore
 
@@ -104,8 +104,12 @@ for index, Hx_app in enumerate(tqdm.tqdm(Hx_app_all)):
     F__phi_M = fn.Dx(u_phi, i) * fn.Dx(v_phi, i) * dx_phi
     F__phi_M += u_M[i] * fn.Dx(v_phi, i) * dx_phi(2)  # type: ignore
 
-    F__M_phi = fn.Constant(A) * fn.Dx(u_M[i], j) * fn.Dx(v_M[i], j) * dx_M  # type: ignore
-    F__M_phi += fn.Constant(-1) * (fn.Dx(u_phi, i) + H_app[i]) * v_M[i] * dx_M  # type: ignore
+    F__M_phi = (
+        fn.Constant(A) * fn.Dx(u_M[i], j) * fn.Dx(v_M[i], j) * dx_M
+    )  # type: ignore
+    F__M_phi += (
+        fn.Constant(-1) * (fn.Dx(u_phi, i) + H_app[i]) * v_M[i] * dx_M
+    )  # type: ignore
 
     F__M_l = fn.Constant(-1) * u_l * u_M[i] * v_M[i] * dx_M  # type: ignore
     F__M_l += (u_M[i] * u_M[i] - 1) * v_l * dx_M  # type: ignore
@@ -114,7 +118,8 @@ for index, Hx_app in enumerate(tqdm.tqdm(Hx_app_all)):
 
     # Solve
 
-    fn.solve(F == 0,
+    fn.solve(
+        F == 0,
         u,
         bc1,
         solver_parameters={
@@ -122,9 +127,10 @@ for index, Hx_app in enumerate(tqdm.tqdm(Hx_app_all)):
             "newton_solver": {
                 "linear_solver": "superlu",
                 "maximum_iterations": 50,
-                "relaxation_parameter": 1.0
-            }
-        })
+                "relaxation_parameter": 1.0,
+            },
+        },
+    )
 
     # Export Solution
 

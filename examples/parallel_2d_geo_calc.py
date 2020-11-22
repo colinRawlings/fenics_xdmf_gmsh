@@ -15,8 +15,9 @@ import fenics_utils as fu
 # Definitions
 ###############################################################
 
-GEO_FILEPATH = os.path.join(os.path.dirname(__file__), os.pardir, "geo",
-                            "circle_square_center_pt.geo")
+GEO_FILEPATH = os.path.join(
+    os.path.dirname(__file__), os.pardir, "geo", "circle_square_center_pt.geo"
+)
 assert os.path.isfile(GEO_FILEPATH)
 
 RESULTS_DIR = fu.get_clean_results_dir(__file__)
@@ -35,7 +36,8 @@ def log(comm: fn.MPI.comm_world, msg: str) -> None:
 ###############################################################
 
 print(
-    f"mpi process: rank: {fn.MPI.rank(fn.MPI.comm_world)}, size: {fn.MPI.size(fn.MPI.comm_world)}")
+    f"mpi process: rank: {fn.MPI.rank(fn.MPI.comm_world)}, size: {fn.MPI.size(fn.MPI.comm_world)}"
+)
 
 
 comm = fn.MPI.comm_world

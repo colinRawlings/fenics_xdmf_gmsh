@@ -25,7 +25,9 @@ GEO_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, "ge
 
 
 def is_center_pt(x, on_boundary):
-    condition = (abs(x[0] - 0.0) < 10 * fn.DOLFIN_EPS and abs(x[1] - 0.0) < 10 * fn.DOLFIN_EPS)  # type: ignore
+    condition = (
+        abs(x[0] - 0.0) < 10 * fn.DOLFIN_EPS and abs(x[1] - 0.0) < 10 * fn.DOLFIN_EPS
+    )  # type: ignore
     return condition
 
 
@@ -36,7 +38,9 @@ def is_center_pt(x, on_boundary):
 # import mesh
 
 geo_filepath = os.path.join(GEO_DIR, "circle_square_center_pt.geo")
-labelled_mesh = fu.convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath, do_plots=False, geo_params={"radius": 1})
+labelled_mesh = fu.convert_2d_gmsh_geo_to_fenics_mesh(
+    geo_filepath, do_plots=False, geo_params={"radius": 1}
+)
 
 # magnetic equation
 
@@ -50,9 +54,7 @@ W = fn.MixedFunctionSpace(V, VE, VL)
 (u, ue, ul) = fn.TrialFunctions(W)  # type: ignore
 (v, ve, vl) = fn.TestFunctions(W)  # type: ignore
 
-bcs = [
-    fn.DirichletBC(W.sub_space(1), fn.Constant(0), is_center_pt, method='pointwise'),
-]
+bcs = [fn.DirichletBC(W.sub_space(1), fn.Constant(0), is_center_pt, method="pointwise")]
 
 M0 = fn.Expression(("0", "1"), degree=2)
 
@@ -70,7 +72,9 @@ L_vl = fn.Constant(0) * vl * dL
 
 w = fn.Function(W)
 
-fn.solve(a_u + a_ue + a_vl == L_u + L_vl, w, bcs, solver_parameters={'linear_solver': 'lu'})
+fn.solve(
+    a_u + a_ue + a_vl == L_u + L_vl, w, bcs, solver_parameters={"linear_solver": "lu"}
+)
 
 u, ue = w.sub(0), w.sub(1)
 

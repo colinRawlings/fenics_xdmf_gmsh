@@ -74,11 +74,13 @@ fn.plot(mesh, title="mesh")
 for dof_n, dof_x in enumerate(V.tabulate_dof_coordinates()):
     ax.annotate(f"dof: {dof_n}", (dof_x, 0))
 
+
 def is_lhs(x, on_boundary):
     condition = abs(x[0] - 0.0) < 10 * fn.DOLFIN_EPS
     return condition
 
-bcs = [fn.DirichletBC(V, fn.Constant(0.5), is_lhs, method='pointwise')]
+
+bcs = [fn.DirichletBC(V, fn.Constant(0.5), is_lhs, method="pointwise")]
 
 a = fn.Constant(-1) * fn.inner(fn.grad(u), fn.grad(v)) * fn.dx
 L = fn.Constant(F_VAL) * v * fn.dx
@@ -91,7 +93,7 @@ plt.figure()
 ax = plt.gca()
 line_u = fn.plot(u, title="solution", label="fenics")
 x = np.linspace(0, 1)
-line_anl = ax.plot(x, 0.5 * x**2 - x + 0.5, ":k", label="anl")
+line_anl = ax.plot(x, 0.5 * x ** 2 - x + 0.5, ":k", label="anl")
 plt.legend()
 ax.set_xlabel("x")
 ax.set_ylabel("u")

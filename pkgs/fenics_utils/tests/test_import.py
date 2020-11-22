@@ -27,6 +27,7 @@ GEO_DIR = rc.resource_filename("fenics_utils", "assets")  # type: ignore
 # Test
 ###########################################################
 
+
 def test_2d_geo_import_and_solve():
     geo_filepath = os.path.join(GEO_DIR, "simple_poisson_2d.geo")
     labelled_mesh = fu.convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath)
@@ -47,11 +48,12 @@ def test_2d_geo_import_and_solve():
 
     #
 
-    fn.solve(F==0, u, bcs)
+    fn.solve(F == 0, u, bcs)
 
-    # 
+    #
 
     assert round(0.0175472, 5) == round(u(0.8, 0.8), 5)
+
 
 def test_3d_geo_import_and_solve():
     geo_filepath = os.path.join(GEO_DIR, "simple_poisson_3d.geo")
@@ -73,8 +75,6 @@ def test_3d_geo_import_and_solve():
 
     #
 
-    fn.solve(F==0, u, bcs)
+    fn.solve(F == 0, u, bcs)
 
     assert round(0.0146543, 5) == round(u(0.8, 0.8, 0.5), 5)
-
-

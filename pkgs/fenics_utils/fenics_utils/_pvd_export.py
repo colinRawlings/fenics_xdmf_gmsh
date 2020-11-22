@@ -56,11 +56,12 @@ def refine_and_project_to_cg1(u: fn.Function, max_refinements: int = 2) -> fn.Fu
         num_refinements -= 1
 
     if u.num_sub_spaces() == 0:  # scalar
-        Vr = fn.FunctionSpace(refined_mesh, 'CG', 1)
+        Vr = fn.FunctionSpace(refined_mesh, "CG", 1)
     else:
-        assert u.num_sub_spaces() == u.geometric_dimension(),\
-        "Only scalar or vector functions supported"
-        Vr = fn.VectorFunctionSpace(refined_mesh, 'CG', 1)
+        assert (
+            u.num_sub_spaces() == u.geometric_dimension()
+        ), "Only scalar or vector functions supported"
+        Vr = fn.VectorFunctionSpace(refined_mesh, "CG", 1)
 
     ur = fn.Function(Vr)
     ur.interpolate(u)
@@ -73,7 +74,7 @@ def refine_and_project_to_cg1(u: fn.Function, max_refinements: int = 2) -> fn.Fu
 
 def save_function(u: fn.Function, filepath: str):
 
-    assert os.path.splitext(filepath)[-1] == '.pvd', "Expected a paraview file"
+    assert os.path.splitext(filepath)[-1] == ".pvd", "Expected a paraview file"
 
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
 

@@ -26,10 +26,11 @@ EXAMPLE_SCRIPTS_WHITELIST = ["calc_system_matrices.py"]
 # Tests
 ###########################################################
 
-@pytest.mark.parametrize('script', glob.glob(os.path.join(EXAMPLE_SCRIPTS_DIR, "*.py")))
+
+@pytest.mark.parametrize("script", glob.glob(os.path.join(EXAMPLE_SCRIPTS_DIR, "*.py")))
 def test_script_execution(script):
 
-    assert (os.path.isdir(EXAMPLE_SCRIPTS_DIR))
+    assert os.path.isdir(EXAMPLE_SCRIPTS_DIR)
 
     script_name = os.path.split(script)[-1]
     if script_name in EXAMPLE_SCRIPTS_BLACKLIST:

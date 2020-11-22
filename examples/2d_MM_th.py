@@ -17,8 +17,7 @@ import fenics_utils as fu
 # Definitions
 ###########################################################
 
-GEO_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), os.pardir, "geo"))
+GEO_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, "geo"))
 
 ###########################################################
 # Functions
@@ -26,8 +25,9 @@ GEO_DIR = os.path.abspath(
 
 
 def is_center_pt(x, on_boundary):
-    condition = (abs(x[0] - 0.0) < 10 * fn.DOLFIN_EPS
-                 and abs(x[1] - 0.0) < 10 * fn.DOLFIN_EPS)  # type: ignore
+    condition = (
+        abs(x[0] - 0.0) < 10 * fn.DOLFIN_EPS and abs(x[1] - 0.0) < 10 * fn.DOLFIN_EPS
+    )  # type: ignore
     return condition
 
 
@@ -38,12 +38,11 @@ def is_center_pt(x, on_boundary):
 # Load Mesh
 
 geo_filepath = os.path.join(GEO_DIR, "circle_square_center_pt.geo")
-labelled_mesh = fu.convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath, {
-    "radius": 2,
-    "dx_inner_mesh": 0.1,
-    "dx_outer_mesh": 0.4
-},
-                                                      do_plots=False)
+labelled_mesh = fu.convert_2d_gmsh_geo_to_fenics_mesh(
+    geo_filepath,
+    {"radius": 2, "dx_inner_mesh": 0.1, "dx_outer_mesh": 0.4},
+    do_plots=False,
+)
 
 labelled_mesh1 = fu.create_mesh_view(labelled_mesh)
 labelled_mesh2 = fu.create_mesh_view(labelled_mesh, 2)
@@ -85,20 +84,24 @@ u_th = u.sub(1)
 
 u_th.interpolate(fn.Constant(np.pi / 4))  # type: ignore
 
-dx1 = fn.Measure("dx",
-                 domain=W.sub_space(0).mesh(),
-                 subdomain_data=labelled_mesh1.subdomain_mesh_func)
-dx2 = fn.Measure("dx",
-                 domain=W.sub_space(1).mesh(),
-                 subdomain_data=labelled_mesh2.subdomain_mesh_func)
+dx1 = fn.Measure(
+    "dx",
+    domain=W.sub_space(0).mesh(),
+    subdomain_data=labelled_mesh1.subdomain_mesh_func,
+)
+dx2 = fn.Measure(
+    "dx",
+    domain=W.sub_space(1).mesh(),
+    subdomain_data=labelled_mesh2.subdomain_mesh_func,
+)
 
 M = fn.as_vector((fn.cos(u_th), fn.sin(u_th)))
-DM_th = fn.as_vector((fn.Constant(-1)*fn.sin(u_th), fn.cos(u_th)))
+DM_th = fn.as_vector((fn.Constant(-1) * fn.sin(u_th), fn.cos(u_th)))
 
 F_phi = fn.inner(fn.grad(u_phi), fn.grad(v_phi)) * dx1
 F_phi += fn.inner(M, fn.grad(v_phi)) * dx1(2)
 
-F_th = fn.Constant(0.01)*fn.inner(fn.grad(u_th), fn.grad(v_th)) * dx2
+F_th = fn.Constant(0.01) * fn.inner(fn.grad(u_th), fn.grad(v_th)) * dx2
 F_th += fn.Constant(-1) * fn.inner(DM_th, fn.grad(u_phi)) * v_th * dx2
 
 F = F_phi + F_th
@@ -106,13 +109,15 @@ F = F_phi + F_th
 # Compute Solution
 
 try:
-    fn.solve(F == 0, u, bcs, solver_parameters={
-             "nonlinear_solver": "newton",
-             "newton_solver": {
-                 "linear_solver": "superlu",
-                 "relaxation_parameter": 1.0
-             }
-         })
+    fn.solve(
+        F == 0,
+        u,
+        bcs,
+        solver_parameters={
+            "nonlinear_solver": "newton",
+            "newton_solver": {"linear_solver": "superlu", "relaxation_parameter": 1.0},
+        },
+    )
 except RuntimeError as e:
     print(repr(e))
 

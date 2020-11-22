@@ -28,15 +28,17 @@ MOVIE_FILE_EXTENSION = ".mov"
 ###############################################################
 
 
-def create_animation(output_prefix="output",
-                     init_camera_position=(1, 1, 1),
-                     DAzimuth=90,
-                     DElevation=20,
-                     DDolly=1.5):
+def create_animation(
+    output_prefix="output",
+    init_camera_position=(1, 1, 1),
+    DAzimuth=90,
+    DElevation=20,
+    DDolly=1.5,
+):
 
     # init
 
-    sp.check_output(['where', 'avconv'])
+    sp.check_output(["where", "avconv"])
 
     # set abs az = 45, abs el = 45
 
@@ -53,7 +55,7 @@ def create_animation(output_prefix="output",
 
     del_az = DAzimuth / num_steps
     del_elv = DElevation / num_steps
-    del_dolly = DDolly**(1 / num_steps)
+    del_dolly = DDolly ** (1 / num_steps)
 
     # create animation
 
@@ -63,8 +65,10 @@ def create_animation(output_prefix="output",
     for time_index in range(num_steps):
 
         print("Processing frame: {} of {}".format(time_index + 1, num_steps))
-        
-        pv.SaveScreenshot(output_prefix + "_frame{}{}".format(time_index, FRAME_FILE_EXTENSION))
+
+        pv.SaveScreenshot(
+            output_prefix + "_frame{}{}".format(time_index, FRAME_FILE_EXTENSION)
+        )
         pv.Render()
 
         anim.GoToNext()
@@ -86,13 +90,16 @@ def create_animation(output_prefix="output",
     # video
 
     cmd_list = [
-        "avconv", "-i", output_prefix + "_frame%d" + FRAME_FILE_EXTENSION, "-qscale", "1",
-        output_prefix + MOVIE_FILE_EXTENSION
+        "avconv",
+        "-i",
+        output_prefix + "_frame%d" + FRAME_FILE_EXTENSION,
+        "-qscale",
+        "1",
+        output_prefix + MOVIE_FILE_EXTENSION,
     ]
 
     proc = sp.Popen(cmd_list, stdout=sp.PIPE, stderr=sp.PIPE)
 
     stdout, stderr = proc.communicate()
 
-    assert proc.returncode == 0, "Movie creation failed.{}{}".format(
-        stdout, stderr)
+    assert proc.returncode == 0, "Movie creation failed.{}{}".format(stdout, stderr)

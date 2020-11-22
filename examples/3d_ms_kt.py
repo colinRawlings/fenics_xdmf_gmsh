@@ -25,8 +25,9 @@ RESULTS_DIR = fu.get_clean_results_dir(__file__)
 
 
 def is_center_pt(x, on_boundary):
-    condition = (abs(x[0] - 0.0) < 10 * fn.DOLFIN_EPS
-                 and abs(x[1] - 0.0) < 10 * fn.DOLFIN_EPS)  # type: ignore
+    condition = (
+        abs(x[0] - 0.0) < 10 * fn.DOLFIN_EPS and abs(x[1] - 0.0) < 10 * fn.DOLFIN_EPS
+    )  # type: ignore
     return condition
 
 
@@ -51,12 +52,7 @@ W = fn.MixedFunctionSpace(V, VE, VL)
 (u, ue, ul) = fn.TrialFunctions(W)  # type: ignore
 (v, ve, vl) = fn.TestFunctions(W)  # type: ignore
 
-bcs = [
-    fn.DirichletBC(W.sub_space(1),
-                   fn.Constant(0),
-                   is_center_pt,
-                   method='pointwise'),
-]
+bcs = [fn.DirichletBC(W.sub_space(1), fn.Constant(0), is_center_pt, method="pointwise")]
 
 M0 = fn.Expression(("0", "1", "0"), degree=2)
 
