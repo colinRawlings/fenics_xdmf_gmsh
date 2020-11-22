@@ -3,7 +3,8 @@ FROM quay.io/fenicsproject/stable:1.6.0
 RUN apt-get update && apt-get install -y \
     gmsh \
     python-scipy \
-    paraview
+    paraview \
+    x11-apps
 
 COPY ./requirements-dev.txt /home/fenics/requirements-dev.txt
 RUN pip install -r /home/fenics/requirements-dev.txt
