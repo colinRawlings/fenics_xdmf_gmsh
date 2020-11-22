@@ -40,7 +40,7 @@ parser.add_argument('--results-filepath',
                     default='',
                     help='json file to save the result data to (if empty no data is saved).')
 
-args = parser.parse_args()
+args, _ = parser.parse_known_args()
 
 # solve
 

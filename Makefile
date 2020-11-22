@@ -55,7 +55,7 @@ up:
 .PHONY: tests, tests-docker
 
 tests:
-	pytest ./pkgs/fenics_utils/tests ./pkgs/paraview_utils/tests
+	pytest ./tests ./pkgs/fenics_utils/tests ./pkgs/paraview_utils/tests
 	
 tests-docker:
 	docker-compose -f ${docker_compose_file} run fenics "pytest ./tests ./pkgs/fenics_utils/tests ./pkgs/paraview_utils/tests"
