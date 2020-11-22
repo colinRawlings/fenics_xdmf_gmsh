@@ -17,3 +17,4 @@ legacy_particles/twoD_cyl/mesh/out*.msh
 *.pdf
 debug.log
 legacy_particles/docker-compose-platform.yml
+.venv/
