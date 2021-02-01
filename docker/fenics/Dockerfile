@@ -50,8 +50,8 @@ RUN pip install jupytext --upgrade
 
 # homemade mesh conversion
 
-RUN pip install meshio==3.3.1
-RUN pip install lxml==4.5.0
+COPY ./docker/fenics/requirements.txt /home/fenics/requirements.txt
+RUN pip install -r /home/fenics/requirements.txt
 
 COPY ./docker/fenics/requirements-dev.txt /home/fenics/requirements-dev.txt
 RUN pip install -r /home/fenics/requirements-dev.txt

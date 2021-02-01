@@ -44,24 +44,24 @@ env: ${env_path}
 
 ${venv_ok_path}:
 	${VENV_CREATE_PYTHON} -m venv --clear "${venv_path}"
-	${pip_bin} install pre-commit==2.8.2
-	${precommit_bin} install
+	"${pip_bin}" install pre-commit==2.8.2
+	"${precommit_bin}" install
 	echo ok > "${venv_ok_path}"
 
 venv: ${venv_ok_path}
 
 build: env venv
-	docker-compose -f ${docker_compose_file} build --no-cache
+	docker-compose -f "${docker_compose_file}" build --no-cache
 
 # Run
 
 .PHONY: run-fenics, up
 
 run-fenics:
-	docker-compose -f ${docker_compose_file} run fenics
+	docker-compose -f "${docker_compose_file}" run fenics
 
 up:
-	docker-compose -f ${docker_compose_file} up
+	docker-compose -f "${docker_compose_file}" up
 
 .PHONY: tests, tests-docker
 
@@ -69,7 +69,7 @@ tests:
 	pytest ./tests ./pkgs/fenics_utils/tests ./pkgs/paraview_utils/tests
 	
 tests-docker:
-	docker-compose -f ${docker_compose_file} run fenics "pytest ./tests ./pkgs/fenics_utils/tests ./pkgs/paraview_utils/tests"
+	docker-compose -f "${docker_compose_file}" run fenics "pytest ./tests ./pkgs/fenics_utils/tests ./pkgs/paraview_utils/tests"
 
 
 # Notebook config

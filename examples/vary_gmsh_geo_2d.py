@@ -11,13 +11,16 @@ the copy construction ...
 ###########################################################
 
 import os
+import tempfile
 
-# import subprocess as sp
 import matplotlib.pyplot as plt
+import pyvista as pv
 
 import dolfin as fn
 
 import fenics_utils as fu
+
+import pyvista as pv
 
 ###########################################################
 # Definitions
@@ -39,10 +42,19 @@ for geom_params in [
 ]:
 
     mesh_data = fu.convert_2d_gmsh_geo_to_fenics_mesh(geo_filepath, geom_params)
-    p = fn.plot(mesh_data.subdomain_mesh_func)
-    fn.plot(mesh_data.mesh)
-    plt.title(f"geom params: {geom_params}")
-    plt.colorbar(p)
 
     if "PYTEST_CURRENT_TEST" not in os.environ:
-        plt.show()
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+
+            tmp_xdmf_filepath = os.path.join(tmp_dir, "tmp.xdmf")
+
+            with fn.XDMFFile(tmp_xdmf_filepath) as tmp_xd:
+                tmp_xd.write(mesh_data.subdomain_mesh_func)
+
+            mesh = pv.read(tmp_xdmf_filepath)
+
+            plotter = pv.Plotter()
+            plotter.add_mesh_clip_box(mesh, show_edges=True)
+
+            plotter.show()
