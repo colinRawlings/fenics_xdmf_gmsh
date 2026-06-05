@@ -1,6 +1,6 @@
 jupyter
 black 
-pytest==5.3.2
+pytest==9.0.3
 six==1.13.0
 tqdm
 pandas==1.0.1
